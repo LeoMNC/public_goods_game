@@ -21,6 +21,7 @@ Empirica.onStageStart(({ stage }) => {});
 Empirica.onStageEnded(({ stage }) => {
   //compute our score.
   const players = stage.currentGame.players;
+  console.log("more players", players);
   for (const player of players) {
     const opponent = players.filter((p) => p.id !== player.id)[0];
     const playerChoice = player.round.get("decision");

@@ -23,6 +23,9 @@ export function Profile() {
         <div className="text-empirica-400">
           {stage ? stage.get("name") : ""}
         </div>
+        <div className="text-empirica-500">
+          {player ? player.get("name") : "wheeee"}
+        </div>
       </div>
 
       <Timer />
