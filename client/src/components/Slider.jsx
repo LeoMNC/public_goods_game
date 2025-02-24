@@ -5,7 +5,7 @@ import { usePlayer } from "@empirica/core/player/classic/react";
 export function CoinDonationSlider({ min = 0, max = 10, step = 1, className = "", value, onChange }) {
   const [internalValue, setInternalValue] = useState(value ?? min);
   const player = usePlayer(); // Access the player object
-
+  const numCoins = player.round.get("coins");
   const handleChange = (newValue) => {
     setInternalValue(newValue);
     if (onChange) {
@@ -15,7 +15,9 @@ export function CoinDonationSlider({ min = 0, max = 10, step = 1, className = ""
 
   const handleButtonClick = () => {
     if (player) {
-      player.set("donation", internalValue); // Save slider value to player object
+      player.round.set("donation", internalValue); // Save slider value to player object
+      player.round.set("coins", (numCoins - internalValue));
+      player.stage.set("submit", true);
     }
   };
 
@@ -31,7 +33,7 @@ export function CoinDonationSlider({ min = 0, max = 10, step = 1, className = ""
         <input
           type="range"
           min={min}
-          max={max}
+          max={numCoins}
           step={step}
           value={internalValue}
           onChange={(e) => handleChange(Number(e.target.value))}

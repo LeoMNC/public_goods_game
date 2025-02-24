@@ -8,6 +8,10 @@ import { Loading } from "@empirica/core/player/react";
 import React from "react";
 import { Choice } from "./stages/Choice";
 import { Result } from "./stages/Result";
+import { Monitor } from "./stages/Monitor";
+import { Punish } from "./stages/Punish";
+import { Transfer } from "./stages/Transfer";
+
 
 export function Stage() {
   const player = usePlayer();
@@ -32,6 +36,12 @@ export function Stage() {
       return <Choice />;
     case "result":
       return <Result />;
+    case "monitor":
+      return <Monitor />;
+    case "punish":
+      return <Punish />;
+    case "transfer":
+      return<Transfer />;
     default:
       return <p>Loading...</p>;
   }

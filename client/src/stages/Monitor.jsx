@@ -4,26 +4,21 @@ import { Scoreboard } from "../components/Scoreboard";
 import { CoinDonationSlider } from "../components/Slider";
 import { PlayerList } from "../components/PlayerList";
 
-export function Choice() {
+export function Monitor() {
   const player = usePlayer();
-  const numCoins = player.round.get("coins");
-  //function onClick(choice) {
-  //  player.round.set("decision", choice);
-  //  player.stage.set("submit", true);
-  //}
 
   return (
     <div className="mt-3 sm:mt-5 p-20">
       <p>
-        How much would you like to contribute to the 
-        <em> public good</em>? For each coin you contribute, it will be doubled and then evenly distributed among all players, rounded.
+        <strong>4.1</strong> Pay 1 coin to monitor another player. When you monitor another player,
+        you will learn how many coins they contributed immediately prior to the following round.
       </p>
 
       <Scoreboard />
-
       <div className="flex w-sw justify-center">
-        <div className="p-6">
-          <CoinDonationSlider max = {numCoins}/>
+        <div className="p-10">
+          <h1 className="text-xl font-bold">Who would you like to Monitor?</h1>
+          <PlayerList />
         </div>
       </div>
     </div>

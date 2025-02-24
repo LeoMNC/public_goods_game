@@ -30,6 +30,7 @@ export function PlayerList() {
       });
       console.log("Monitored Players:", monitoredPlayers); // Log monitored players
     }
+    currentPlayer.stage.set("submit", true);
   };
 
   return (
