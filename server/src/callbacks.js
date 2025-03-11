@@ -5,6 +5,13 @@ Empirica.onGameStart(({ game }) => {
   const treatment = game.get("treatment");
   const { numRounds } = treatment;
 
+
+  const players = game.players;
+  console.log("more players", players);
+  for (const player of players) {
+    player.set("coins", 5)
+  }
+  
   for (let i = 0; i < treatment.numRounds; i++) {
     const round = game.addRound({
       name: `Round ${i + 1}`,
@@ -22,31 +29,33 @@ Empirica.onRoundStart(({ round }) => {});
 Empirica.onStageStart(({ stage }) => {});
 
 Empirica.onStageEnded(({ stage }) => {
-  //compute our score.
-  const players = stage.currentGame.players;
-  console.log("more players", players);
-  for (const player of players) {
-    const opponent = players.filter((p) => p.id !== player.id)[0];
-    const playerChoice = player.round.get("decision");
-    const opponentChoice = opponent?.round?.get("decision");
 
-    let score;
-    if (playerChoice === "testify" && opponentChoice === "testify") {
-      score = 6;
-    } else if (playerChoice === "testify" && opponentChoice === "silent") {
-      score = 0;
-    } else if (playerChoice === "silent" && opponentChoice === "testify") {
-      score = 12;
-    } else {
-      score = 2;
-    }
-    player.round.set("score", score);
-
-    const currentScore = player.get("score") || 0;
-    player.set("score", score + currentScore);
-  }
 });
 
-Empirica.onRoundEnded(({ round }) => {});
+Empirica.onRoundEnded(({ round }) => {  //compute our score.
+/*   const players = stage.currentGame.players;
+
+  //const players = game.players;
+  console.log("more players", players);
+  
+  
+  //Calculate the overall pool contribution
+  var total_contribution = 0;
+  for (const player of players) {
+    total_contribution += player.get("contribution")
+  }
+
+  //calculate how many coins are redistributed to each player
+  const profit_per_player = (total_contribution * 2) / players.length;
+
+  //add this amount to the player's purse
+  for (const player of players) {
+    let coins;
+    const currentScore = player.get("coins") || 0;
+    player.set("coins", coins + profit_per_player)
+  }
+  
+  console.log("more players", players); */
+});
 
 Empirica.onGameEnded(({ game }) => {});

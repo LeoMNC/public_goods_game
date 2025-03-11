@@ -10,7 +10,7 @@ import { usePlayer } from "@empirica/core/player/classic/react";
 export function Introduction({ next }) {
   const player = usePlayer();
   //default player coins
-  //player.round.set("coins", 5);
+  player.set("coins", 5);
   const [nameSet, setNameSet] = useState(false);
   return (
     <div className="mt-3 sm:mt-5 p-20">

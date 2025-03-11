@@ -6,9 +6,9 @@ import { Scoreboard } from "../components/Scoreboard";
 export function Result() {
   const player = usePlayer();
   const players = usePlayers();
-  const numCoins = player.round.get("coins");
+  const numCoins = player.get("coins");
   //p.round.get ???
-  const totalCoins = players.reduce((sum, p) => sum + (p.get("donation") || 0), 0);
+  const totalCoins = players.reduce((sum, p) => sum + (p.round.get("donation") || 0), 0);
   const share = players.length > 0 ? totalCoins / players.length : 0;
   player.set("coins", (share + numCoins));
   return (

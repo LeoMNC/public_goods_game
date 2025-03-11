@@ -6,6 +6,7 @@ export function CoinDonationSlider({ min = 0, max = 10, step = 1, className = ""
   const [internalValue, setInternalValue] = useState(value ?? min);
   const player = usePlayer(); // Access the player object
   const numCoins = player.round.get("coins");
+  const numCoins2 = player.get("coins");
   const handleChange = (newValue) => {
     setInternalValue(newValue);
     if (onChange) {
@@ -15,8 +16,9 @@ export function CoinDonationSlider({ min = 0, max = 10, step = 1, className = ""
 
   const handleButtonClick = () => {
     if (player) {
+      console.log("SLIDER VALUE: ", internalValue);
       player.round.set("donation", internalValue); // Save slider value to player object
-      player.round.set("coins", (numCoins - internalValue));
+      player.set("coins", (numCoins2 - internalValue));
       player.stage.set("submit", true);
     }
   };
@@ -33,7 +35,7 @@ export function CoinDonationSlider({ min = 0, max = 10, step = 1, className = ""
         <input
           type="range"
           min={min}
-          max={numCoins}
+          max={numCoins2}
           step={step}
           value={internalValue}
           onChange={(e) => handleChange(Number(e.target.value))}
@@ -41,7 +43,7 @@ export function CoinDonationSlider({ min = 0, max = 10, step = 1, className = ""
         />
         <div className="flex justify-between w-full text-sm text-gray-600 mt-1">
           <span>{min}</span>
-          <span>{max}</span>
+          <span>{numCoins2}</span>
         </div>
       </div>
       <button
