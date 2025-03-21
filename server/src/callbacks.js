@@ -19,7 +19,7 @@ Empirica.onGameStart(({ game }) => {
     round.addStage({ name: "choice", duration: 10000 });
     round.addStage({ name: "monitor", duration: 10000 });
     //round.addStage({ name: "transfer", duration: 10000 });
-    //round.addStage({ name: "punish", duration: 10000 });
+    round.addStage({ name: "punish", duration: 10000 });
     round.addStage({ name: "result", duration: 10000 });
   }
 });

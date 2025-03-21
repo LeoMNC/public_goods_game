@@ -14,12 +14,14 @@ export function Result() {
   //const totalDonatedCoins = player.get("coins");
   //const share = 3;
   const share = player.round.get("share");
+  const numPunishments = player.round.get("punishment");
 
   return (
     <div>
       <p>{`You donated: ${player.round.get("donation")}`}</p>
       <p>{`The pool donated: ${totalDonatedCoins}`}</p>
       <p>{`You receive: ${share} coins!`}</p>
+      <p>{`You were punished: ${numPunishments} times, resulting in a loss of ${numPunishments * 5} coins!`}</p>
 
 {/*       <br />
       <p>{`You get ${player.round.get("score")} months in jail!`}</p> */}
