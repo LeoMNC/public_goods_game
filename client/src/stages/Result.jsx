@@ -6,15 +6,19 @@ import { Scoreboard } from "../components/Scoreboard";
 export function Result() {
   const player = usePlayer();
   const players = usePlayers();
-  const numCoins = player.get("coins");
   //p.round.get ???
-  const totalCoins = players.reduce((sum, p) => sum + (p.round.get("donation") || 0), 0);
-  const share = players.length > 0 ? totalCoins / players.length : 0;
-  player.set("coins", (share + numCoins));
+  const totalDonatedCoins = players.reduce((sum, p) => sum + (p.round.get("donation") || 0), 0);
+  //const share = players.length > 0 ? totalCoins / players.length : 0;
+  //player.set("coins", (share + numCoins));
+  
+  //const totalDonatedCoins = player.get("coins");
+  //const share = 3;
+  const share = player.round.get("share");
+
   return (
     <div>
       <p>{`You donated: ${player.round.get("donation")}`}</p>
-      <p>{`The pool donated: ${totalCoins}`}</p>
+      <p>{`The pool donated: ${totalDonatedCoins}`}</p>
       <p>{`You receive: ${share} coins!`}</p>
 
 {/*       <br />
