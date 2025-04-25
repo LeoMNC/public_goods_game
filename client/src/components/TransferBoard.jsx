@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { usePlayers, usePlayer } from "@empirica/core/player/classic/react";
+import { usePlayer, usePlayers } from "@empirica/core/player/classic/react";
+import { Scoreboard } from "../components/Scoreboard";
 
 export function TransferBoard() {
   const players = usePlayers() || [];
@@ -8,17 +9,22 @@ export function TransferBoard() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (players.length > 0) {
-      console.log("All players:", players);
-    }
-  }, [players]);
+    // Initialize transfers state with 0 for each player
+    const initialTransfers = players.reduce((acc, player) => {
+      if (player.id !== currentPlayer.id) {
+        acc[player.id] = 0; // Default transfer value is 0
+      }
+      return acc;
+    }, {});
+    setTransfers(initialTransfers);
+  }, [players, currentPlayer]);
 
   if (!currentPlayer) {
     return <div>Loading...</div>;
   }
 
   const handleTransferChange = (playerId, amount) => {
-    if (amount < 0 || amount > 5 || isNaN(amount)) return;
+    if (amount < 0 || amount > 5 || isNaN(amount)) return; // Ensure transfer is between 0 and 5
     setTransfers((prev) => ({ ...prev, [playerId]: amount }));
   };
 
@@ -31,17 +37,24 @@ export function TransferBoard() {
       return;
     }
 
-    const updatedTransfers = Object.entries(transfers).filter(([_, amount]) => amount > 0);
-    if (updatedTransfers.length === 0) return;
-
-    updatedTransfers.forEach(([playerId, amount]) => {
-      const player = players.find((p) => p.id === playerId);
-      if (player) {
-        player.set("coins", (player.get("coins") || 0) + amount);
+    // Process only the transfers with amount > 0
+    Object.entries(transfers).forEach(([playerId, amount]) => {
+      if (amount > 0) {
+        const player = players.find((p) => p.id === playerId);
+        if (player) {
+          const currentTransfer = player.round.get("transferTo") || {};
+          player.round.set("transferTo", {
+            ...currentTransfer,
+            [currentPlayer.id]: amount,
+          });
+        }
       }
     });
-    
+
+    // Deduct the total amount transferred
     currentPlayer.set("coins", playerCoins - totalTransfer);
+
+    // Mark the stage as submitted
     currentPlayer.stage.set("submit", true);
     setTransfers({});
     setError(null);
@@ -56,17 +69,15 @@ export function TransferBoard() {
           .map((player) => (
             <li key={player.id} className="flex items-center gap-2">
               <label htmlFor={`transfer-${player.id}`}>{player.get("name")}</label>
-              
               <input
                 type="number"
                 id={`transfer-${player.id}`}
                 min="0"
                 max="5"
-                value={transfers[player.id] || ""}
+                value={transfers[player.id] || 0}
                 onChange={(e) => handleTransferChange(player.id, Number(e.target.value))}
                 className="w-16 border rounded px-2"
               />
-              
             </li>
           ))}
       </ul>
@@ -74,7 +85,8 @@ export function TransferBoard() {
       {error && <p className="text-red-600 font-bold">{error}</p>}
       <button
         onClick={handleTransferClick}
-        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition"
+        disabled={totalTransfer > playerCoins}
+        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Transfer
       </button>

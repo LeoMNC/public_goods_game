@@ -11,6 +11,7 @@ import { Result } from "./stages/Result";
 import { Monitor } from "./stages/Monitor";
 import { Punish } from "./stages/Punish";
 import { Transfer } from "./stages/Transfer";
+import { Intermission } from "./stages/Intermission"
 
 
 export function Stage() {
@@ -38,6 +39,8 @@ export function Stage() {
       return <Result />;
     case "monitor":
       return <Monitor />;
+    case "intermission":
+      return <Intermission />;
     case "punish":
       return <Punish />;
     case "transfer":

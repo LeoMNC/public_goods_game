@@ -18,6 +18,7 @@ Empirica.onGameStart(({ game }) => {
     });
     round.addStage({ name: "choice", duration: 10000 });
     round.addStage({ name: "monitor", duration: 10000 });
+    round.addStage({ name: "intermission", duration: 10000})
     round.addStage({ name: "transfer", duration: 10000 });
     round.addStage({ name: "punish", duration: 10000 });
     round.addStage({ name: "result", duration: 10000 });
@@ -46,7 +47,7 @@ Empirica.onStageStart(({ stage }) => {
     for (const player of players) {
       //let coins;
       const coins = player.get("coins") || 0;
-      player.set("coins", coins + profit_per_player);
+      //player.set("coins", coins + profit_per_player);
       player.round.set("share", profit_per_player);
       player.set("last_coin_pool", total_contribution);
     }

@@ -17,7 +17,7 @@ export function Transfer() {
       <Scoreboard />
       <div className="flex w-sw justify-center">
         <div className="p-10">
-          <h1 className="text-xl font-bold">Who would you like to Monitor?</h1>
+          <h1 className="text-xl font-bold">To whom would you like to transfer coins?</h1>
           <TransferBoard />
         </div>
       </div>

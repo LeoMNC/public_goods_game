@@ -6,7 +6,7 @@ import { PlayerList } from "../components/PlayerList";
 
 export function Choice() {
   const player = usePlayer();
-  const numCoins = player.round.get("coins");
+  const numCoins = player.get("coins");
   //function onClick(choice) {
   //  player.round.set("decision", choice);
   //  player.stage.set("submit", true);

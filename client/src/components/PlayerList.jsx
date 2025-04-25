@@ -24,21 +24,23 @@ export function PlayerList() {
   const handleMonitorClick = () => {
     const monitoringCost = monitoredPlayers.length;
     const playerCoins = currentPlayer.get("coins") || 0;
-
+  
     if (playerCoins >= monitoringCost) {
       monitoredPlayers.forEach((playerId) => {
         const player = players.find((p) => p.id === playerId);
         if (player) {
-          player.set("monitored", true); // Set the player object to monitored
+          player.set("monitored", true); // Optional, but if needed for reverse lookup
         }
       });
+      currentPlayer.set("monitoredPlayers", monitoredPlayers); // 👈 Save who was monitored
       currentPlayer.set("coins", playerCoins - monitoringCost); // Deduct cost
       currentPlayer.stage.set("submit", true);
-      setError(null); // Clear any previous errors
+      setError(null);
     } else {
       setError("Error! Not enough coins.");
     }
   };
+  
 
   return (
     <div className="p-4 border rounded">
