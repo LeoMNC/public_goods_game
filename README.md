@@ -34,13 +34,13 @@ Before you begin, make sure you have the following installed on your system:
 1. Open PowerShell as Administrator and run the following command:
    ```bash
    wsl --set-default-version 2
-
+   ```
 
 2. Pull the Docker Image
 After cloning the repository, you can pull the pre-built Docker image from Docker Hub. Run this command:
    ```bash
    docker pull sillyduckyluck/public-goods-game:latest
-
+   ```
 
 This will download the Docker image to your local system
 
@@ -50,6 +50,8 @@ Once the image is downloaded, you can start the application by running the Docke
 
    ```bash
 docker run -p 3000:3000 sillyduckyluck/public-goods-game:latest
+   ```
+
 This command will:
 
 Run the Docker container.
@@ -62,6 +64,7 @@ Once the container is running, you can access the application in your browser by
 
    ```bash
 http://localhost:3000
+   ```
 
 
 This will open the Public Goods Game application.
