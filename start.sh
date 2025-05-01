@@ -1,14 +1,15 @@
 #!/bin/bash
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-nvm use 20.12.2
 
-# Install empirica
-curl https://install.empirica.dev | sh
+# Install Empirica CLI
+curl -s https://install.empirica.dev | sh
 
 # Install dependencies
 (cd server && empirica npm install)
-(cd client && empirica npm install)
+(cd client && npm install)  # Not empirica npm install
 
-# Start the server
-empirica --production
+# Start Empirica backend and Vite frontend in parallel
+empirica &                       # Runs backend
+(cd client && npx vite --port 8846)
+
+         # Runs frontend
+

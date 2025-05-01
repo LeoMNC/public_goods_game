@@ -11,9 +11,11 @@ export default defineConfig({
   },
   server: {
     port: 8844,
+    //port:8846,
     open: false,
     strictPort: true,
     host: "0.0.0.0",
+    //host: true,
     fs: {
       allow: [
         // search up for workspace root
