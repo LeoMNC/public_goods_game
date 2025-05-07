@@ -14,6 +14,7 @@ export function Introduction({ next }) {
   const [nameSet, setNameSet] = useState(false);
   return (
     <div className="mt-3 sm:mt-5 p-20">
+      <p>TESTING</p>
       <p>
         <strong>1. The goal of the game is to amass as many coins as possible.</strong>
         You do not have to worry about beating the other players, as this is not a competitive game.

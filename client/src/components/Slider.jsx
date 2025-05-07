@@ -18,7 +18,6 @@ export function CoinDonationSlider({ min = 0, max = 10, step = 1, className = ""
     if (player) {
       console.log("SLIDER VALUE: ", internalValue);
       player.round.set("donation", internalValue); // Save slider value to player object
-      player.set("coins", (numCoins2 - internalValue));
       player.stage.set("submit", true);
     }
   };

@@ -1,30 +1,34 @@
 import React from "react";
-import { usePlayer } from "@empirica/core/player/classic/react";
-import { Scoreboard } from "../components/Scoreboard";
+import { usePlayer, usePlayers } from "@empirica/core/player/classic/react";
 import { CoinDonationSlider } from "../components/Slider";
-import { PlayerList } from "../components/PlayerList";
 
 export function Choice() {
   const player = usePlayer();
-  const numCoins = player.get("coins");
-  //function onClick(choice) {
-  //  player.round.set("decision", choice);
-  //  player.stage.set("submit", true);
-  //}
+  const players = usePlayers(); // Get all players
+  const numCoins = player.get("coins") || 0;
 
   return (
     <div className="mt-3 sm:mt-5 p-20">
-      <p>
-        How much would you like to contribute to the 
-        <em> public good</em>? For each coin you contribute, it will be doubled and then evenly distributed among all players, rounded.
+      <h3 className="text-lg font-semibold">Round Contributions</h3>
+      <p className="mb-4">
+        You have <strong>{numCoins}</strong> coins. Contributions are doubled and split equally.
       </p>
 
-      <Scoreboard />
+      <CoinDonationSlider 
+        max={numCoins}
+        onChange={(donation) => player.round.set("donation", donation)}
+      />
 
-      <div className="flex w-sw justify-center">
-        <div className="p-6">
-          <CoinDonationSlider max = {numCoins}/>
-        </div>
+      {/* Show other players (optional) */}
+      <div className="mt-8">
+        <h4 className="font-medium mb-2">Players in Group:</h4>
+        <ul>
+          {players.map((p) => (
+            <li key={p.id} className="text-gray-600">
+              {p.id} (Coins: {p.get("coins")})
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
