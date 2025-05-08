@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { usePlayer } from "@empirica/core/player/classic/react";
 
-export function CoinDonationSlider({ min = 0, max = 10, step = 1, className = "", value, onChange }) {
+export function CoinContributionSlider({ min = 0, max = 10, step = 1, className = "", value, onChange }) {
   const [internalValue, setInternalValue] = useState(value ?? min);
   const player = usePlayer(); // Access the player object
   const numCoins = player.round.get("coins");
@@ -17,8 +17,7 @@ export function CoinDonationSlider({ min = 0, max = 10, step = 1, className = ""
   const handleButtonClick = () => {
     if (player) {
       console.log("SLIDER VALUE: ", internalValue);
-      player.round.set("donation", internalValue); // Save slider value to player object
-      player.set("coins", (numCoins2 - internalValue));
+      player.round.set("contribution", internalValue); // Save slider value to player object
       player.stage.set("submit", true);
     }
   };
@@ -50,7 +49,7 @@ export function CoinDonationSlider({ min = 0, max = 10, step = 1, className = ""
         onClick={handleButtonClick}
         className="mt-4 px-4 py-2 bg-empirica-600 text-white rounded-lg shadow-md hover:bg-empirica-700 transition"
       >
-        Confirm Donation
+        Confirm contribution
       </button>
     </div>
   );

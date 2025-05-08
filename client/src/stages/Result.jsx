@@ -8,7 +8,7 @@ export function Result() {
   const players = usePlayers();
 
   const totalDonatedCoins = players.reduce(
-    (sum, p) => sum + (p.round.get("donation") || 0),
+    (sum, p) => sum + (p.round.get("contribution") || 0),
     0
   );
   const share = player.round.get("share") || 0;
@@ -43,7 +43,7 @@ export function Result() {
 
   return (
     <div>
-      <p>You donated: {player.round.get("donation")} coins</p>
+      <p>You donated: {player.round.get("contribution")} coins</p>
       <p>The total pool: {totalDonatedCoins} coins</p>
       <p>You received {share} coins from the pool.</p>
 

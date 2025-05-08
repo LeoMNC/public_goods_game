@@ -1,7 +1,7 @@
 import React from "react";
 import { usePlayer } from "@empirica/core/player/classic/react";
 import { Scoreboard } from "../components/Scoreboard";
-import { CoinDonationSlider } from "../components/Slider";
+import { CoinContributionSlider } from "../components/Slider";
 import { PlayerList } from "../components/PlayerList";
 
 export function Choice() {
@@ -23,7 +23,7 @@ export function Choice() {
 
       <div className="flex w-sw justify-center">
         <div className="p-6">
-          <CoinDonationSlider max = {numCoins}/>
+          <CoinContributionSlider max = {numCoins}/>
         </div>
       </div>
     </div>

@@ -26,3 +26,8 @@ treatments:
       playerCount: 2
       numRounds: 10
     name: Two Players - Long
+  - desc: "3-player 2-round Game"
+    factors:
+      playerCount: 3
+      numRounds: 2
+    name: Three Players

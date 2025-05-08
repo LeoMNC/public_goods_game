@@ -35,7 +35,7 @@ export function Intermission() {
             {monitoredPlayers.map((p) => (
               <tr key={p.id}>
                 <td className="border p-2">{p.get("name")}</td>
-                <td className="border p-2">{p.round.get("donation") ?? "No data"}</td>
+                <td className="border p-2">{p.round.get("contribution") ?? "No data"}</td>
                 <td className="border p-2">1 coin</td>
               </tr>
             ))}

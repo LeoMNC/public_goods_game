@@ -1,7 +1,7 @@
 import React from "react";
 import { usePlayer } from "@empirica/core/player/classic/react";
 import { Scoreboard } from "../components/Scoreboard";
-import { CoinDonationSlider } from "../components/Slider";
+import { CoinContributionSlider } from "../components/Slider";
 import { PlayerList } from "../components/PlayerList";
 
 export function Monitor() {
