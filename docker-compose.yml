@@ -1,0 +1,12 @@
+services:
+  pgg:
+    platform: linux/amd64
+    build: 
+      context: .
+      args:
+        - TARGET_PLATFORM=linux/amd64
+    ports:
+      - "3000:3000"
+      - "8844:8844"
+      - "5173:5173"
+      - "5174:5174"

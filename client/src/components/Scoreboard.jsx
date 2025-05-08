@@ -11,7 +11,7 @@ export function Scoreboard() {
 
   useEffect(() => {
     // Calculate total coins contributed by all players in the current round
-    const total = players.reduce((acc, p) => acc + (p.get("contribution") || 0), 0);
+    const total = players.reduce((acc, p) => acc + (p.round.get("contribution") || 0), 0);
     setTotalDonated(total); // Update total contribution state
   }, [players]); // Runs whenever players update
 
