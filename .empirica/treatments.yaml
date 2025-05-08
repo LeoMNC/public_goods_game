@@ -1,0 +1,36 @@
+factors:
+  - desc: playerCount determines the number of Players are in a Game.
+    name: playerCount
+    values:
+      - value: 2
+      - value: 5
+  - desc: How many times participants will make a choice
+    name: numRounds
+    values:
+      - value: 7
+  - desc: Can players chat with each other during the game?
+    name: chatEnabled
+    values:
+      - value: true
+      - value: false
+
+treatments:
+  - desc: A short iterated public goods game with 2 players
+    factors:
+      playerCount: 2
+      numRounds: 3
+      chatEnabled: true
+    name: default
+  - desc: A long iterated public goods game
+    factors:
+      playerCount: 2
+      numRounds: 7
+      chatEnabled: false
+    name: long_iterated
+  - desc: A long iterated public goods game with chat
+    factors:
+      playerCount: 2
+      numRounds: 7
+      chatEnabled: true
+    name: long_iterated_chat
+
