@@ -12,8 +12,10 @@ Empirica.onGameStart(({ game }) => {
   const numRounds = treatment.numRounds;
   console.log(`Creating ${numRounds} rounds`);
 
-  const stageNames = ["contribution", "monitor", "result", "intermission"]//, "punish"] //"", "", , "transfer"];
-
+  const stageNames = ["contribution", "monitor", "intermission", "punish", 
+    //"transfer",
+    "credits"];
+  
   for (let i = 0; i < numRounds; i++) {
     console.log(`Creating Round ${i} --------------------------`);
     const round = game.addRound({
