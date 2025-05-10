@@ -6,8 +6,11 @@ import {
 } from "@empirica/core/player/classic/react";
 import { Loading } from "@empirica/core/player/react";
 import React from "react";
-import { Choice } from "./stages/Choice";
+import { Contribution } from "./stages/Contribution";
 import { Result } from "./stages/Result";
+import { Monitor } from "./stages/Monitor.jsx";
+import { Intermission } from "./stages/Intermission.jsx";
+import { Punish } from "./stages/Punish.jsx";
 
 export function Stage() {
   const player = usePlayer();
@@ -28,11 +31,18 @@ export function Stage() {
   }
 
   switch (stage.get("name")) {
-    case "choice":
-      return <Choice />;
+    case "contribution":
+      return <Contribution />;
     case "result":
       return <Result />;
+    case "monitor":
+      return <Monitor />;
+    case "intermission":
+      return <Intermission />;
+    case "punish":
+      return <Punish />;
     default:
+      console.error(`Unknown stage: ${stage.get("name")}`);
       return <Loading />;
   }
 }

@@ -1,0 +1,30 @@
+round coins to cents
+make endowment static
+receive monitoring feedback before punish
+remove monitoring cost column from monitoring results
+remove last contribution from round 1 (or set to current contribution)
+
+
+round structure:
+
+Contribution Slider
+ - Current Coins
+ - Number of Players
+ - Return
+
+Monitoring 
+ - Current Coins (after donation)
+ - Player List
+
+VCM Results
+ - Money donated in total
+ - Average donation
+ - Current Coins (after profits)
+ - Monitoring Results
+ - Their own contribution
+
+Punishment
+ - Current Coins
+ - Player list
+ - Average donation
+ 

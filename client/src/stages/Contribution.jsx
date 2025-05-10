@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Slider, usePlayer, useStage } from "@empirica/core/player/classic/react";
-import { Button } from "../components/Button";
+import { Button } from "../components/Button.jsx";
 
-export function Choice() {
+export function Contribution() {
   const player = usePlayer();
   const stage = useStage();
   const currentTokens = player.get("tokens") || 10; // Ensure tokens is set at the player level
