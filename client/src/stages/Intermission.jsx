@@ -24,9 +24,6 @@ export function Intermission() {
 
   return (
     <div className="max-w-4xl mx-auto mt-6 p-8 bg-gray-50 rounded-xl shadow-md">
-      <div className="flex justify-center">
-        <Scoreboard />
-      </div>
 
       <hr className="my-6 border-gray-300" />
 
@@ -50,12 +47,6 @@ export function Intermission() {
         )}
         <p>
           You now have <strong>{finalCoins}</strong> coins.
-        </p>
-      </div>
-
-      <div className="bg-white border-l-4 border-empirica-500 p-5 rounded-lg shadow-sm text-gray-700 text-base mb-10">
-        <p>
-          In the remainder of the round, you can spend these coins on punishing and rewarding other players. Anything you have at the end of the round will convert from coins to points, which will be counted at the end of the game. <strong>Remember, your job is to get as many points as possible.</strong>
         </p>
       </div>
 
@@ -83,12 +74,18 @@ export function Intermission() {
         </>
       )}
 
+      <div className="bg-white border-l-4 border-empirica-500 p-5 rounded-lg shadow-sm text-gray-700 text-base mb-10">
+        <p>
+          In the remainder of the round, you can spend these coins on punishing and rewarding other players. Anything you have at the end of the round will convert from coins to points, which will be counted at the end of the game. <strong>Remember, your job is to get as many points as possible.</strong>
+        </p>
+      </div>
+
       <div className="flex justify-center">
         <button
           onClick={handleContinue}
           className="px-8 py-3 bg-empirica-600 text-white text-lg rounded-xl shadow-lg hover:bg-empirica-700 transition"
         >
-          Continue
+          Done Reviewing Results - Continue to Next Stage
         </button>
       </div>
     </div>

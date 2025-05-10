@@ -13,7 +13,7 @@ Empirica.onGameStart(({ game }) => {
   console.log(`Creating ${numRounds} rounds`);
 
   const stageNames = ["contribution", "monitor", "intermission", "punish", 
-    //"transfer",
+    "transfer",
     "credits"];
   
   for (let i = 0; i < numRounds; i++) {

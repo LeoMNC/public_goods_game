@@ -11,7 +11,8 @@ import { Result } from "./stages/Result";
 import { Monitor } from "./stages/Monitor.jsx";
 import { Intermission } from "./stages/Intermission.jsx";
 import { Punish } from "./stages/Punish.jsx";
-
+import { Transfer } from "./stages/Transfer.jsx";
+import { Credits } from "./stages/Credits.jsx";
 export function Stage() {
   const player = usePlayer();
   const players = usePlayers();
@@ -41,6 +42,10 @@ export function Stage() {
       return <Intermission />;
     case "punish":
       return <Punish />;
+    case "transfer":
+      return <Transfer />;
+    case "credits":
+      return <Credits />;
     default:
       console.error(`Unknown stage: ${stage.get("name")}`);
       return <Loading />;
