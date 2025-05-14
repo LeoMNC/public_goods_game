@@ -1,82 +1,193 @@
-// pages/RoundRecap.jsx
+// client/src/stages/Credits.jsx
 import React, { useEffect, useState } from "react";
-import { usePlayer, usePlayers } from "@empirica/core/player/classic/react";
+import { usePlayer, usePlayers, useRound } from "@empirica/core/player/classic/react";
 
-export function RoundRecap() {
+export function Credits() {
   const player = usePlayer();
   const players = usePlayers();
-
-  const [coinsSpentOnPunishing, setCoinsSpentOnPunishing] = useState(0);
-  const [coinsSpentOnTransferring, setCoinsSpentOnTransferring] = useState(0);
-  const [punished, setPunished] = useState(false);
-  const [points, setPoints] = useState(player.get("points") || 0); // Accumulated points
+  const round = useRound();
+  const [roundSummary, setRoundSummary] = useState({
+    startingCoins: 10,
+    contributionSpent: 0,
+    monitoringSpent: 0,
+    returnFromPool: 0,
+    punishmentSpent: 0,
+    punishmentReceived: 0,
+    transfersSent: 0,
+    transfersReceived: 0,
+    endingCoins: 0
+  });
+  const [points, setPoints] = useState(player.get("points") || 0);
 
   useEffect(() => {
-    // Update spent coins and punishment status when the player data changes
-    const transferSpent = player.round.get("transferSpent") || 0;
-    const punishSpent = player.round.get("punishSpent") || 0;
+    // Get the current round data directly from player and player.round
+    // Making sure to access the specific data fields that were actually set during gameplay
+    
+    // Get starting coins for this round - might be stored differently
+    const startingCoins = player.round.get("initialCoins") || player.get("initialCoins") || 10;
+    
+    // Get actual contribution, which might be stored as 'contribution' or 'contributionAmount'
+    const contributionSpent = player.round.get("contribution") || 
+                             player.round.get("contributionAmount") || 0;
+    
+    // Check different possible keys for monitoring cost
+    const monitoringSpent = player.round.get("monitoringCost") || 
+                           player.round.get("monitoringAmount") || 0;
+    
+    // Get return from pool which might be stored differently
+    const returnFromPool = player.round.get("returnFromPool") || 
+                          player.round.get("poolReturn") || 0;
+    
+    // Get punishment data
+    const punishmentSpent = player.round.get("punishSpent") || 
+                           player.round.get("punishmentSpent") || 0;
+    const punishmentReceived = player.round.get("punishmentReceived") || 0;
+    
+    // Get transfer data
+    const transfersSent = player.round.get("transferSpent") || 
+                         player.round.get("transfersSent") || 0;
+    
+    // Calculate transfers received - check different data structures
+    let transfersReceived = player.round.get("transfersReceived") || 0;
+    
+    // If transfersReceived isn't directly stored, calculate it from other players
+    if (transfersReceived === 0) {
+      players.forEach(p => {
+        if (p.id !== player.id) {
+          const transfers = p.round.get("transfers") || {};
+          transfersReceived += transfers[player.id] || 0;
+        }
+      });
+    }
 
-    setCoinsSpentOnTransferring(transferSpent);
-    setCoinsSpentOnPunishing(punishSpent);
+    // Get ending coins for this round
+    const endingCoins = player.get("coins") || 0;
+    
+    // For debugging - log all relevant data to console
+    console.log("Player data:", {
+      id: player.id,
+      roundId: round.id,
+      startingCoins,
+      contributionSpent,
+      monitoringSpent,
+      returnFromPool,
+      punishmentSpent,
+      punishmentReceived,
+      transfersSent,
+      transfersReceived,
+      endingCoins,
+      playerRoundData: player.round.data,
+      playerData: player.data
+    });
+    
+    // Update summary
+    setRoundSummary({
+      startingCoins,
+      contributionSpent,
+      monitoringSpent,
+      returnFromPool,
+      punishmentSpent,
+      punishmentReceived,
+      transfersSent,
+      transfersReceived,
+      endingCoins
+    });
 
-    // Check if the player has been punished (e.g., a deduction in coins)
-    setPunished(player.get("punished") || false);
-
-    // Convert coins to points: Assuming 1 coin = 1 point for simplicity
-    const totalCoinsSpent = transferSpent + punishSpent;
-    const newPoints = totalCoinsSpent + player.get("coins"); // Add remaining coins
-    setPoints(newPoints);
-
-    // Update the player's points
-    player.set("points", newPoints);
-  }, [player]);
+    // Update points
+    setPoints(player.get("points") || 0);
+  }, [player, players, round]);
 
   return (
-    <div className="max-w-4xl mx-auto mt-6 p-8 bg-gray-50 rounded-xl shadow-md">
-      <h1 className="text-3xl font-bold text-center mb-6 text-empirica-700">Round Recap</h1>
-      <div className="space-y-4 text-lg text-gray-800 mb-10">
-        <p>
-          During the round, you spent <strong>{coinsSpentOnTransferring}</strong> coins on transferring and <strong>{coinsSpentOnPunishing}</strong> coins on punishing other players.
-        </p>
-        {punished ? (
-          <p className="text-red-500">
-            You were punished and <strong>{coinsSpentOnPunishing}</strong> coins were deducted from your balance.
+    <div className="max-w-5xl mx-auto mt-6 p-8 bg-gray-50 rounded-xl shadow-md">
+      <h1 className="text-3xl font-bold text-center mb-6 text-empirica-700">Round Summary: {round.get("name")}</h1>
+      
+      <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
+        <h2 className="text-2xl font-semibold text-empirica-600 mb-4">Your Round Transactions</h2>
+        <div className="space-y-3">
+          <p className="flex justify-between">
+            <span>Starting coins:</span> 
+            <span className="font-bold">{roundSummary.startingCoins}</span>
           </p>
-        ) : (
-          <p className="text-green-500">You were not punished this round.</p>
-        )}
-        <p>
-          In total, <strong>{coinsSpentOnTransferring + coinsSpentOnPunishing}</strong> coins were spent this round.
-        </p>
-        <p>
-          These coins are now being converted into points and will no longer exist. Your new total of points is: <strong>{points}</strong>.
-        </p>
-        <p>
-          You now have <strong>{player.get("coins")}</strong> coins, which will also convert into points at the end of the game.
-        </p>
-        <div className="mt-6">
-          <h3 className="text-2xl font-semibold text-empirica-700">Coin Transfers:</h3>
-          {players.map((p) => {
-            const transferAmount = p.round.get("transferSpent") || 0;
-            if (transferAmount > 0) {
-              return (
-                <p key={p.id}>
-                  <strong>{p.get("name")}</strong> transferred <strong>{transferAmount}</strong> coins.
-                </p>
-              );
-            }
-            return null;
-          })}
+          <div className="border-t border-gray-100 my-1"></div>
+          
+          {/* Contributions Section */}
+          <p className="flex justify-between">
+            <span>Contributed to group pool:</span> 
+            <span className="font-bold text-amber-600">-{roundSummary.contributionSpent}</span>
+          </p>
+          <p className="flex justify-between">
+            <span>Spent on monitoring:</span> 
+            <span className="font-bold text-amber-600">-{roundSummary.monitoringSpent}</span>
+          </p>
+          <p className="flex justify-between">
+            <span>Return from group pool:</span> 
+            <span className="font-bold text-green-600">+{roundSummary.returnFromPool}</span>
+          </p>
+          <div className="border-t border-gray-100 my-1"></div>
+          
+          {/* Punishments Section */}
+          <p className="flex justify-between">
+            <span>Spent on punishing others:</span> 
+            <span className="font-bold text-amber-600">-{roundSummary.punishmentSpent}</span>
+          </p>
+          <p className="flex justify-between">
+            <span>Lost from being punished:</span> 
+            <span className="font-bold text-red-600">-{roundSummary.punishmentReceived}</span>
+          </p>
+          <div className="border-t border-gray-100 my-1"></div>
+          
+          {/* Transfers Section */}
+          <p className="flex justify-between">
+            <span>Sent as transfers to others:</span> 
+            <span className="font-bold text-amber-600">-{roundSummary.transfersSent}</span>
+          </p>
+          <p className="flex justify-between">
+            <span>Received as transfers from others:</span> 
+            <span className="font-bold text-green-600">+{roundSummary.transfersReceived}</span>
+          </p>
+          
+          {/* Final Calculation */}
+          <div className="border-t border-gray-200 my-2"></div>
+          <p className="flex justify-between text-lg font-semibold">
+            <span>Net transactions:</span> 
+            <span>{
+              -roundSummary.contributionSpent 
+              - roundSummary.monitoringSpent 
+              + roundSummary.returnFromPool
+              - roundSummary.punishmentSpent 
+              - roundSummary.punishmentReceived 
+              - roundSummary.transfersSent 
+              + roundSummary.transfersReceived
+            }</span>
+          </p>
         </div>
       </div>
-
-      <div className="flex justify-center">
-        <button
-          onClick={() => player.stage.set("submit", true)}
-          className="px-8 py-3 bg-empirica-600 text-white text-lg rounded-xl shadow-lg hover:bg-empirica-700 transition"
-        >
-          Done Reviewing Results - Finish Round
-        </button>
+      
+      <div className="bg-gradient-to-r from-empirica-50 to-empirica-100 p-6 rounded-lg shadow-sm">
+        <h2 className="text-2xl font-semibold text-empirica-700 mb-3">Round Outcome</h2>
+        <div className="flex flex-col md:flex-row md:items-center justify-between">
+          <div>
+            <p className="text-lg mb-2">
+              <span className="font-medium">Ending coin balance:</span> 
+              <span className="text-xl font-bold ml-2">{roundSummary.endingCoins}</span>
+            </p>
+            <p className="text-lg">
+              <span className="font-medium">Your accumulated points:</span>
+              <span className="text-xl font-bold ml-2">{points}</span>
+            </p>
+            <p className="text-sm text-gray-600 mt-2">
+              All coins are converted to points at the end of each round.
+            </p>
+          </div>
+          <div className="mt-4 md:mt-0">
+            <button
+              onClick={() => player.stage.set("submit", true)}
+              className="px-8 py-3 bg-empirica-600 text-white text-lg rounded-xl shadow-lg hover:bg-empirica-700 transition"
+            >
+              Continue to Next Round
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

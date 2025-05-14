@@ -1,6 +1,6 @@
+// client/src/components/TransferBoard.jsx
 import React, { useState, useEffect } from "react";
 import { usePlayer, usePlayers } from "@empirica/core/player/classic/react";
-import { Scoreboard } from "../components/Scoreboard";
 
 export function TransferBoard() {
   const players = usePlayers() || [];
@@ -37,17 +37,31 @@ export function TransferBoard() {
       return;
     }
 
-    // Process only the transfers with amount > 0
-    Object.entries(transfers).forEach(([playerId, amount]) => {
-      if (amount > 0) {
-        const player = players.find((p) => p.id === playerId);
-        if (player) {
-          const currentTransfer = player.round.get("transferTo") || {};
-          player.round.set("transferTo", {
-            ...currentTransfer,
-            [currentPlayer.id]: amount,
-          });
-        }
+    // Create a list of transfer pairs where amount > 0
+    const transfersList = Object.entries(transfers)
+      .filter(([_, amount]) => amount > 0)
+      .map(([playerId, amount]) => ({
+        recipient: playerId,
+        amount: Number(amount)
+      }));
+
+    // Save the transfers list to player's round data
+    currentPlayer.round.set("transfers", transfersList);
+
+    // Process the transfers
+    transfersList.forEach(({ recipient, amount }) => {
+      const player = players.find((p) => p.id === recipient);
+      if (player) {
+        // Update recipient's received transfers
+        const currentReceived = player.round.get("receivedTransfers") || [];
+        player.round.set("receivedTransfers", [
+          ...currentReceived,
+          { from: currentPlayer.id, amount }
+        ]);
+        
+        // Update recipient's coins
+        const recipientCoins = player.get("coins") || 0;
+        player.set("coins", recipientCoins + amount);
       }
     });
 

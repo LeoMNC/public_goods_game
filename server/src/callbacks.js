@@ -16,7 +16,7 @@ Empirica.onGameStart(({ game }) => {
     "transfer",
     "credits"];
   
-  for (let i = 0; i < numRounds; i++) {
+  for (let i = 2; i <= numRounds; i++) {
     console.log(`Creating Round ${i} --------------------------`);
     const round = game.addRound({
       name: `Round ${i}`,
@@ -60,34 +60,62 @@ Empirica.onStageEnded(({ stage }) => {
     case "contribution":
       console.log("Processing contributions...");
       const players = stage.currentGame.players;
-      const contributionMultiplier = 1.5;
-      let roundContribution = 0;
-
       players.forEach(p => {
         const contribution = p.round.get("contribution");
         console.log(`Player ${p.id} contributed: ${contribution}`);
-        roundContribution += contribution;
+
+        // Immediately deduct contribution from coins
+        const newCoins = p.get("coins") - contribution;
+        p.set("coins", newCoins);
+        p.round.set("kept", newCoins);
+
+        console.log(`Player ${p.id} kept: ${newCoins}, new balance: ${p.get("coins")}`);
       });
 
-      const roundPool = roundContribution * contributionMultiplier;
-      const share = roundPool / players.length;
-
+      // Calculate total contribution and store at round level for later use
+      const roundContribution = players.reduce((sum, p) => sum + p.round.get("contribution"), 0);
+      stage.round.set("totalContribution", roundContribution);
       console.log(`Total round contribution: ${roundContribution}`);
+      break;
+
+    case "monitor":
+      console.log("Distributing public good returns after monitoring...");
+      const monitorPlayers = stage.currentGame.players;
+      const contributionMultiplier = 1.5;
+
+      // Get the total contribution from the round data
+      const totalContribution = stage.round.get("totalContribution");
+      const roundPool = totalContribution * contributionMultiplier;
+      const share = roundPool / monitorPlayers.length;
+
       console.log(`Multiplied pool (x${contributionMultiplier}): ${roundPool}`);
       console.log(`Each player receives: ${share}`);
 
-      players.forEach(p => {
-        const contribution = p.round.get("contribution");
-        const kept = p.get("coins") - contribution;
-        const totalEarnings = kept + share;
+      monitorPlayers.forEach(p => {
+        // Deduct one coin for each player they monitor
+        const monitoredPlayers = p.round.get("monitoredPlayers") || [];
+        const monitoringCost = monitoredPlayers.length;
+        const newTotal = p.get("coins") + share - monitoringCost;
 
         console.log(
-          `Player ${p.id} kept: ${kept}, receives share: ${share}, ` +
-          `total earnings this round: ${totalEarnings}`
+          `Player ${p.id} receives share: ${share}, ` +
+          `monitoring cost: ${monitoringCost}, ` +
+          `new balance: ${newTotal}`
         );
 
         p.round.set("share", share);
-        p.set("coins", totalEarnings);
+        p.set("coins", newTotal);
+
+        // Store monitoring results for the players they monitored
+        const monitoringResults = monitoredPlayers.map(monitoredId => {
+          const monitoredPlayer = monitorPlayers.find(mp => mp.id === monitoredId);
+          return {
+            id: monitoredPlayer.id,
+            contribution: monitoredPlayer.round.get("contribution"),
+            kept: monitoredPlayer.round.get("kept")
+          };
+        });
+        p.round.set("monitoringResults", monitoringResults);
       });
       break;
 
@@ -95,7 +123,6 @@ Empirica.onStageEnded(({ stage }) => {
       console.log("Players have viewed results...");
       break;
   }
-
 });
 
 // Round End
@@ -104,7 +131,11 @@ Empirica.onRoundEnded(({ round }) => {
   const players = round.currentGame.players;
   players.forEach(p => {
     const coins = p.get("coins");
+    const oldPoints = p.get("points") || 0;
+    const newPoints = oldPoints + coins;
+    p.set("points", newPoints);
     console.log(`Player ${p.id} coins at end of round: ${coins}`);
+    console.log(`Player ${p.id} points at end of round: ${p.get("points") || 0}`);
   });
 });
 
