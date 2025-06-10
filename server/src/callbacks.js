@@ -81,7 +81,7 @@ Empirica.onStageEnded(({ stage }) => {
     case "monitor":
       console.log("Distributing public good returns after monitoring...");
       const monitorPlayers = stage.currentGame.players;
-      const contributionMultiplier = 1.5;
+      const contributionMultiplier = 2;
 
       // Get the total contribution from the round data
       const totalContribution = stage.round.get("totalContribution");

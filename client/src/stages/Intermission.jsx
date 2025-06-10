@@ -6,11 +6,12 @@ import { Scoreboard } from "../components/Scoreboard";
 export function Intermission() {
   const player = usePlayer();
   const players = usePlayers();
+  const contributionMultiplier = 2;
 
   const contribution = player.round.get("contribution") || 0;
   const share = player.round.get("share") || 0;
   const totalContribution = players.reduce((sum, p) => sum + (p.round.get("contribution") || 0), 0);
-  const totalPool = totalContribution * 1.5;
+  const totalPool = totalContribution * contributionMultiplier;
   const meanContribution = totalContribution / players.length;
   const finalCoins = player.get("coins")?.toFixed(2) ?? "–";
 
@@ -37,7 +38,7 @@ export function Intermission() {
           Over all {players.length} players, <strong>{totalContribution} coins</strong> were contributed. The average contribution was <strong>{meanContribution.toFixed(2)}</strong> coins.
         </p>
         <p>
-          After a 1.5x multiplier, the pool became <strong>{totalPool.toFixed(2)} coins</strong>. This was divided between all {players.length} players, so each player (including you) received <strong>{share.toFixed(2)} coins</strong>.
+          After a ${contributionMultiplier}x multiplier, the pool became <strong>{totalPool.toFixed(2)} coins</strong>. This was divided between all {players.length} players, so each player (including you) received <strong>{share.toFixed(2)} coins</strong>.
         </p>
         {monitoringCost > 0 ? (
           <p>

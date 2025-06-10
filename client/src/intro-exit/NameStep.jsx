@@ -46,7 +46,7 @@ export function NameStep({ next }) {
         value={name}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        placeholder="Enter your name"
+        placeholder="Please enter your name"
       />
       {/* Error message container with fixed height */}
       <div className="h-6 mb-4">

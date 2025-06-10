@@ -21,7 +21,7 @@ export function Contribution() {
       <h2>You have {currentCoins} coins.</h2>
       <p>You can contribute any number of your coins to a shared pool.</p>
       <ul className="list-disc list-inside text-left mx-auto max-w-md mt-4">
-        <li>The pool is multiplied by <strong>1.5</strong>.</li>
+        <li>The pool is multiplied by <strong>2</strong>.</li>
         <li>It's split evenly among all players.</li>
         <li>You keep any coins you don't contribute.</li>
       </ul>
