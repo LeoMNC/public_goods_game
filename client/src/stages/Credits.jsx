@@ -10,7 +10,7 @@ export function Credits() {
     startingCoins: 10,
     contributionSpent: 0,
     monitoringSpent: 0,
-    returnFromPool: 0,
+    share: 0,
     punishmentSpent: 0,
     punishmentReceived: 0,
     transfersSent: 0,
@@ -22,35 +22,18 @@ export function Credits() {
   useEffect(() => {
     // Get the current round data directly from player and player.round
     // Making sure to access the specific data fields that were actually set during gameplay
-    
-    // Get starting coins for this round - might be stored differently
     const startingCoins = player.round.get("initialCoins") || player.get("initialCoins") || 10;
+    const contributionSpent = player.round.get("contribution") || player.round.get("contributionAmount") || 0;
+    const monitoringSpent = player.round.get("monitoringCost") || player.round.get("monitoringAmount") || 0;
+    const totalContribution = round.get("totalContribution");
+    const contributionMultiplier = 2;
+    const roundPool = totalContribution * contributionMultiplier;
+    const share = roundPool / players.length;
     
-    // Get actual contribution, which might be stored as 'contribution' or 'contributionAmount'
-    const contributionSpent = player.round.get("contribution") || 
-                             player.round.get("contributionAmount") || 0;
-    
-    // Check different possible keys for monitoring cost
-    const monitoringSpent = player.round.get("monitoringCost") || 
-                           player.round.get("monitoringAmount") || 0;
-    
-    // Get return from pool which might be stored differently
-    const returnFromPool = player.round.get("returnFromPool") || 
-                          player.round.get("poolReturn") || 0;
-    
-    // Get punishment data
-    const punishmentSpent = player.round.get("punishSpent") || 
-                           player.round.get("punishmentSpent") || 0;
+    const punishmentSpent = player.round.get("punishSpent") || player.round.get("punishmentSpent") || 0;
     const punishmentReceived = player.round.get("punishmentReceived") || 0;
-    
-    // Get transfer data
-    const transfersSent = player.round.get("transferSpent") || 
-                         player.round.get("transfersSent") || 0;
-    
-    // Calculate transfers received - check different data structures
+    const transfersSent = player.round.get("transferSpent") || player.round.get("transfersSent") || 0;
     let transfersReceived = player.round.get("transfersReceived") || 0;
-    
-    // If transfersReceived isn't directly stored, calculate it from other players
     if (transfersReceived === 0) {
       players.forEach(p => {
         if (p.id !== player.id) {
@@ -59,8 +42,6 @@ export function Credits() {
         }
       });
     }
-
-    // Get ending coins for this round
     const endingCoins = player.get("coins") || 0;
     
     // For debugging - log all relevant data to console
@@ -70,7 +51,7 @@ export function Credits() {
       startingCoins,
       contributionSpent,
       monitoringSpent,
-      returnFromPool,
+      share,
       punishmentSpent,
       punishmentReceived,
       transfersSent,
@@ -85,14 +66,13 @@ export function Credits() {
       startingCoins,
       contributionSpent,
       monitoringSpent,
-      returnFromPool,
+      share,
       punishmentSpent,
       punishmentReceived,
       transfersSent,
       transfersReceived,
       endingCoins
     });
-
     // Update points
     setPoints(player.get("points") || 0);
   }, [player, players, round]);
@@ -100,7 +80,6 @@ export function Credits() {
   return (
     <div className="max-w-5xl mx-auto mt-6 p-8 bg-gray-50 rounded-xl shadow-md">
       <h1 className="text-3xl font-bold text-center mb-6 text-empirica-700">Round Summary: {round.get("name")}</h1>
-      
       <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
         <h2 className="text-2xl font-semibold text-empirica-600 mb-4">Your Round Transactions</h2>
         <div className="space-y-3">
@@ -109,7 +88,6 @@ export function Credits() {
             <span className="font-bold">{roundSummary.startingCoins}</span>
           </p>
           <div className="border-t border-gray-100 my-1"></div>
-          
           {/* Contributions Section */}
           <p className="flex justify-between">
             <span>Contributed to group pool:</span> 
@@ -120,11 +98,10 @@ export function Credits() {
             <span className="font-bold text-amber-600">-{roundSummary.monitoringSpent}</span>
           </p>
           <p className="flex justify-between">
-            <span>Return from group pool:</span> 
-            <span className="font-bold text-green-600">+{roundSummary.returnFromPool}</span>
+            <span>Share from group pool:</span>
+            <span className="font-bold text-green-600">+{roundSummary.share}</span>
           </p>
           <div className="border-t border-gray-100 my-1"></div>
-          
           {/* Punishments Section */}
           <p className="flex justify-between">
             <span>Spent on punishing others:</span> 
@@ -135,7 +112,6 @@ export function Credits() {
             <span className="font-bold text-red-600">-{roundSummary.punishmentReceived}</span>
           </p>
           <div className="border-t border-gray-100 my-1"></div>
-          
           {/* Transfers Section */}
           <p className="flex justify-between">
             <span>Sent as transfers to others:</span> 
@@ -145,24 +121,23 @@ export function Credits() {
             <span>Received as transfers from others:</span> 
             <span className="font-bold text-green-600">+{roundSummary.transfersReceived}</span>
           </p>
-          
           {/* Final Calculation */}
           <div className="border-t border-gray-200 my-2"></div>
           <p className="flex justify-between text-lg font-semibold">
             <span>Net transactions:</span> 
-            <span>{
-              -roundSummary.contributionSpent 
-              - roundSummary.monitoringSpent 
-              + roundSummary.returnFromPool
+            <span>
+              {roundSummary.share
+                - roundSummary.contributionSpent
+                - roundSummary.monitoringSpent
               - roundSummary.punishmentSpent 
               - roundSummary.punishmentReceived 
               - roundSummary.transfersSent 
               + roundSummary.transfersReceived
-            }</span>
+              }
+            </span>
           </p>
         </div>
       </div>
-      
       <div className="bg-gradient-to-r from-empirica-50 to-empirica-100 p-6 rounded-lg shadow-sm">
         <h2 className="text-2xl font-semibold text-empirica-700 mb-3">Round Outcome</h2>
         <div className="flex flex-col md:flex-row md:items-center justify-between">
