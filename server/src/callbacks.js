@@ -1,3 +1,4 @@
+// server/src/callbacks.js
 import { ClassicListenersCollector } from "@empirica/core/admin/classic";
 export const Empirica = new ClassicListenersCollector();
 
