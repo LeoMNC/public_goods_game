@@ -1,30 +1,26 @@
-round coins to cents
-make endowment static
+Make tranfering and punishing work
+Round 1 = Practice Round -> reset accumulated points for Round 2
+Add round/stage language earlier on into description 
+Add image explaining rules to player’s screen
+Coins are not being properly converted to accumulated points / added at end of round
+Accumulation from previous round confuses participants
+Punish Stage: option to not punish 
+Server should update as participants go through stages + rounds
+Transfer stage: after clicking the arrow for the amount… it rerenders the whole page for steven 
+Maximum of 5 for transfers?
+Unclear if you have 0 coins // don't know if you have enough to monitor etc  (ambiguity around when you get return)
+Round coins + points wherever displayed… shouldn't be 0000000
+Let participants see their own history
+During intermission show the remainder of coins of other players… if not their coins, then their ranking… public moves??
+Add to instructions what is public information and what is not
+
+Disclaimer about money
+turn all points talk to money talk
+
 receive monitoring feedback before punish
 remove monitoring cost column from monitoring results
 remove last contribution from round 1 (or set to current contribution)
-
-
-round structure:
-
-Contribution Slider
- - Current Coins
- - Number of Players
- - Return
-
-Monitoring 
- - Current Coins (after donation)
- - Player List
-
-VCM Results
- - Money donated in total
- - Average donation
- - Current Coins (after profits)
- - Monitoring Results
- - Their own contribution
-
-Punishment
- - Current Coins
- - Player list
- - Average donation
- 
+Change # punishing + transfers in credits
+Transfers: numbers change after every round/stage -> show step by step ->> scoreboard.jsx ??
+Tokens at the top right -> should update after every stage
+Add to protocol: let participants explain the rules of the game wrong… DON’T correct them unless they ask you for clarification

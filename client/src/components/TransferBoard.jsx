@@ -29,11 +29,11 @@ export function TransferBoard() {
   };
 
   const totalTransfer = Object.values(transfers).reduce((sum, val) => sum + (val || 0), 0);
-  const playerCoins = currentPlayer.get("coins") || 0;
+  const playerTokens = currentPlayer.get("tokens") || 0;
 
   const handleTransferClick = () => {
-    if (totalTransfer > playerCoins) {
-      setError("Insufficient coins");
+    if (totalTransfer > playerTokens) {
+      setError("Insufficient tokens");
       return;
     }
 
@@ -59,14 +59,14 @@ export function TransferBoard() {
           { from: currentPlayer.id, amount }
         ]);
         
-        // Update recipient's coins
-        const recipientCoins = player.get("coins") || 0;
-        player.set("coins", recipientCoins + amount);
+        // Update recipient's tokens
+        const recipientTokens = player.get("tokens") || 0;
+        player.set("tokens", recipientTokens + amount);
       }
     });
 
     // Deduct the total amount transferred
-    currentPlayer.set("coins", playerCoins - totalTransfer);
+    currentPlayer.set("tokens", playerTokens - totalTransfer);
 
     // Mark the stage as submitted
     currentPlayer.stage.set("submit", true);
@@ -76,7 +76,7 @@ export function TransferBoard() {
 
   return (
     <div className="p-4 border rounded">
-      <h2 className="text-lg font-bold">Transfer Coins</h2>
+      <h2 className="text-lg font-bold">Transfer Tokens</h2>
       <ul className="list-disc pl-5">
         {players
           .filter((p) => p.id !== currentPlayer?.id)
@@ -95,11 +95,11 @@ export function TransferBoard() {
             </li>
           ))}
       </ul>
-      <p className="mt-2">Transfer Total: {totalTransfer} coins</p>
+      <p className="mt-2">Transfer Total: {totalTransfer} tokens</p>
       {error && <p className="text-red-600 font-bold">{error}</p>}
       <button
         onClick={handleTransferClick}
-        disabled={totalTransfer > playerCoins}
+        disabled={totalTransfer > playerTokens}
         className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Transfer

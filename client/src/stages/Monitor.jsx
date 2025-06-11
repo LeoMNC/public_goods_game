@@ -6,7 +6,7 @@ import { Button } from "../components/Button.jsx";
 export function Monitor() {
   const player = usePlayer();
   const players = usePlayers();
-  const currentCoins = player.get("coins") || 10;
+  const currentTokens = player.get("tokens") || 10;
   const [selectedPlayers, setSelectedPlayers] = useState(player.round.get("monitoredPlayers") || []);
   
   function handlePlayerToggle(playerId) {
@@ -22,7 +22,7 @@ export function Monitor() {
   function handleSubmit() {
     player.round.set("monitoredPlayers", selectedPlayers);
     player.stage.set("submit", true);
-    // The coin deduction will happen in callback.js based on number of selected players
+    // The token deduction will happen in callback.js based on number of selected players
   }
 
   // Get all other players in the game
@@ -33,7 +33,7 @@ export function Monitor() {
 
   return (
     <div className="text-center mt-3 sm:mt-5 p-20">
-      <h2 className="text-2xl font-bold">You have {currentCoins} coins</h2>
+      <h2 className="text-2xl font-bold">You have {currentTokens} tokens</h2>
       
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6 max-w-2xl mx-auto">
         <h3 className="text-lg font-semibold text-blue-800 mb-2">How Monitoring Works</h3>
@@ -45,7 +45,7 @@ export function Monitor() {
             </svg>
           </div>
           <p className="text-left">
-            You can pay <span className="font-bold">1 coin per player</span> to monitor them. For each player you monitor, you'll see how many coins they contributed in the previous round. This information will be shown to you at the beginning of the next round. You can select multiple players or none at all.
+            You can pay <span className="font-bold">1 token per player</span> to monitor them. For each player you monitor, you'll see how many tokens they contributed in the previous round. This information will be shown to you at the beginning of the next round. You can select multiple players or none at all.
           </p>
         </div>
       </div>
@@ -55,7 +55,7 @@ export function Monitor() {
         <>
           <div className="mt-6">
             <h1 className="text-xl font-bold mb-2">Select players to monitor</h1>
-            <p className="text-gray-600 mb-4">Each player costs 1 coin to monitor. You can select any number of players, including zero.</p>
+            <p className="text-gray-600 mb-4">Each player costs 1 token to monitor. You can select any number of players, including zero.</p>
             <div className="flex flex-col space-y-2 max-w-md mx-auto">
               {otherPlayers.map((p) => (
                 <div 
@@ -78,11 +78,11 @@ export function Monitor() {
           
           <div className="mt-6 bg-gray-50 p-4 rounded-lg inline-block">
             <p className="font-medium">
-              Cost: {monitoringCost} {monitoringCost === 1 ? "coin" : "coins"}
+              Cost: {monitoringCost} {monitoringCost === 1 ? "token" : "tokens"}
             </p>
-            {monitoringCost > currentCoins && (
+            {monitoringCost > currentTokens && (
               <p className="text-red-500 text-sm mt-1">
-                You don't have enough coins for this selection.
+                You don't have enough tokens for this selection.
               </p>
             )}
           </div>
@@ -91,7 +91,7 @@ export function Monitor() {
             <Button 
               handleClick={handleSubmit} 
               primary 
-              disabled={monitoringCost > currentCoins}
+              disabled={monitoringCost > currentTokens}
             >
               Submit
             </Button>

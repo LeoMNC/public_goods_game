@@ -23,9 +23,9 @@ export function PlayerList() {
 
   const handleMonitorClick = () => {
     const monitoringCost = monitoredPlayers.length;
-    const playerCoins = currentPlayer.get("coins") || 0;
+    const playerTokens = currentPlayer.get("tokens") || 0;
   
-    if (playerCoins >= monitoringCost) {
+    if (playerTokens >= monitoringCost) {
       monitoredPlayers.forEach((playerId) => {
         const player = players.find((p) => p.id === playerId);
         if (player) {
@@ -33,11 +33,11 @@ export function PlayerList() {
         }
       });
       currentPlayer.set("monitoredPlayers", monitoredPlayers); // 👈 Save who was monitored
-      currentPlayer.set("coins", playerCoins - monitoringCost); // Deduct cost
+      currentPlayer.set("tokens", playerTokens - monitoringCost); // Deduct cost
       currentPlayer.stage.set("submit", true);
       setError(null);
     } else {
-      setError("Error! Not enough coins.");
+      setError("Error! Not enough tokens.");
     }
   };
   
@@ -62,7 +62,7 @@ export function PlayerList() {
             </li>
           ))}
       </ul>
-      <p className="mt-2">Monitoring cost: {monitoredPlayers.length} coins</p>
+      <p className="mt-2">Monitoring cost: {monitoredPlayers.length} tokens</p>
       {error && <p className="text-red-600 font-bold">{error}</p>}
       <button
         onClick={handleMonitorClick}

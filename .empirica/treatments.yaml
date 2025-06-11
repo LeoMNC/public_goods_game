@@ -18,6 +18,13 @@ factors:
       - value: false
 
 treatments:
+  - name: testing
+    desc: 2 players, 3 rounds, chat enabled
+    factors:
+      playerCount: 3
+      numRounds: 5
+      chatEnabled: true
+
   - name: 3_players_chat
     desc: 3 players with chat enabled
     factors:

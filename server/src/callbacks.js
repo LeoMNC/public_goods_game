@@ -17,7 +17,7 @@ Empirica.onGameStart(({ game }) => {
     "transfer",
     "credits"];
   
-  for (let i = 2; i <= numRounds; i++) {
+  for (let i = 1; i <= numRounds; i++) {
     console.log(`Creating Round ${i} --------------------------`);
     const round = game.addRound({
       name: `Round ${i}`,
@@ -30,21 +30,25 @@ Empirica.onGameStart(({ game }) => {
       console.log(`Round ${i}, stage ${stageName} created`);
       });
     console.log(`Round ${i} completed`)
-    }
   }
-);
+});
 
-// Round Start
+// Round Start: initialize tokens and round properties
 Empirica.onRoundStart(({ round }) => {
   console.log(`Round started: ${round.get("name")}`);
-  const players = round.currentGame.players;
-  players.forEach(p => {
-    p.set("coins", 10);
+  round.currentGame.players.forEach((p) => {
+    p.set("tokens", 10);
     p.round.set("contribution", 0);
     p.round.set("kept", 0);
-    console.log(`Initialized Player ${p.id}: coins=10, contribution=0, kept=0`);
+    p.round.set("share", 0);
+    p.round.set("givenPunishments", []);
+    p.round.set("punishmentReceived", 0);
+    console.log(
+      `Initialized Player ${p.id}: tokens=10, contribution=0, kept=0, share=0`
+    );
   });
 });
+
 
 // Stage Start
 Empirica.onStageStart(({ stage }) => {
@@ -55,22 +59,22 @@ Empirica.onStageStart(({ stage }) => {
 Empirica.onStageEnded(({ stage }) => {
   const stageName = stage.get("name");
   const roundName = stage.round.get("name");
+  const players = stage.currentGame.players;
   console.log(`Stage ended: ${stageName} in round ${roundName}`);
 
   switch (stageName) {  
     case "contribution":
       console.log("Processing contributions...");
-      const players = stage.currentGame.players;
       players.forEach(p => {
         const contribution = p.round.get("contribution");
         console.log(`Player ${p.id} contributed: ${contribution}`);
 
-        // Immediately deduct contribution from coins
-        const newCoins = p.get("coins") - contribution;
-        p.set("coins", newCoins);
-        p.round.set("kept", newCoins);
+        // Immediately deduct contribution from tokens
+        const newTokens = p.get("tokens") - contribution;
+        p.set("tokens", newTokens);
+        p.round.set("kept", newTokens);
 
-        console.log(`Player ${p.id} kept: ${newCoins}, new balance: ${p.get("coins")}`);
+        console.log(`Player ${p.id} kept: ${newTokens}, new balance: ${p.get("tokens")}`);
       });
 
       // Calculate total contribution and store at round level for later use
@@ -81,22 +85,21 @@ Empirica.onStageEnded(({ stage }) => {
 
     case "monitor":
       console.log("Distributing public good returns after monitoring...");
-      const monitorPlayers = stage.currentGame.players;
       const contributionMultiplier = 2;
 
       // Get the total contribution from the round data
       const totalContribution = stage.round.get("totalContribution");
       const roundPool = totalContribution * contributionMultiplier;
-      const share = roundPool / monitorPlayers.length;
+      const share = roundPool / players.length;
 
       console.log(`Multiplied pool (x${contributionMultiplier}): ${roundPool}`);
       console.log(`Each player receives: ${share}`);
 
-      monitorPlayers.forEach(p => {
-        // Deduct one coin for each player they monitor
+      players.forEach(p => {
+        // Deduct one token for each player they monitor
         const monitoredPlayers = p.round.get("monitoredPlayers") || [];
         const monitoringCost = monitoredPlayers.length;
-        const newTotal = p.get("coins") + share - monitoringCost;
+        const newTotal = p.get("tokens") + share - monitoringCost;
 
         console.log(
           `Player ${p.id} receives share: ${share}, ` +
@@ -105,7 +108,7 @@ Empirica.onStageEnded(({ stage }) => {
         );
 
         p.round.set("share", share);
-        p.set("coins", newTotal);
+        p.set("tokens", newTotal);
 
         // Store monitoring results for the players they monitored
         const monitoringResults = monitoredPlayers.map(monitoredId => {
@@ -120,10 +123,86 @@ Empirica.onStageEnded(({ stage }) => {
       });
       break;
 
-    case "result":
-      console.log("Players have viewed results...");
+    case "intermission":
+      console.log("Intermission stage, players can review contributions...");
+      players.forEach(p => {
+        const contribution = p.round.get("contribution");
+        const kept = p.round.get("kept");
+        console.log(`Player ${p.id} - Contribution: ${contribution}, Kept: ${kept}`);
+      });
       break;
-  }
+
+    case "punish":
+      console.log("Punishment stage: applying token updates...");
+
+      // Tally received punishments from all players' givenPunishments
+      const punishmentMap = {};
+      players.forEach((p) => {
+        const given = p.round.get("givenPunishments") || [];
+        given.forEach((targetId) => {
+          punishmentMap[targetId] = (punishmentMap[targetId] || 0) + 1;
+        });
+      });
+
+      players.forEach((p) => {
+        // Deduct cost for punishers
+        const given = p.round.get("givenPunishments") || [];
+        const punishCost = given.length;
+        if (punishCost > 0) {
+          const before = p.get("tokens");
+          const after = before - punishCost;
+          p.set("tokens", after);
+          console.log(
+            `Player ${p.id} paid ${punishCost} tokens for punishing -> ${after}`
+          );
+        }
+
+        // Set received punishment count for accurate server-side reference
+        const received = punishmentMap[p.id] || 0;
+        p.round.set("punishmentReceived", received);
+        if (received > 0) {
+          const before = p.get("tokens");
+          const penalty = received * 5;
+          const after = Math.max(0, before - penalty);
+          p.set("tokens", after);
+          console.log(
+            `Player ${p.id} was punished ${received} times, lost ${penalty} -> ${after}`
+          );
+        }
+      });
+
+      // Convert remaining tokens into points immediately
+      players.forEach((p) => {
+        const tokens = p.get("tokens");
+        const oldPts = p.get("points") || 0;
+        const newPts = oldPts + tokens;
+        p.set("points", newPts);
+        console.log(
+          `Player ${p.id} end-of-punish tokens: ${tokens}, total points: ${newPts}`
+        );
+      });
+      break;
+
+    case "transfer":
+      console.log("Transfer stage, players can transfer tokens...");
+      const transferPlayers = stage.currentGame.players;
+      transferPlayers.forEach(p => {
+        const tokens = p.get("tokens");
+        console.log(`Player ${p.id} has ${tokens} tokens available for transfer`);
+        // Here you would implement the logic for transferring tokens
+      });
+      break;
+      
+    case "credits":
+      console.log("Credits stage, displaying final results...");
+      const creditPlayers = stage.currentGame.players;
+      creditPlayers.forEach(p => {
+        const tokens = p.get("tokens");
+        const points = p.get("points") || 0;
+        console.log(`Player ${p.id} - Tokens: ${tokens}, Points: ${points}`);
+      });
+      break;
+    }
 });
 
 // Round End
@@ -131,11 +210,11 @@ Empirica.onRoundEnded(({ round }) => {
   console.log(`Round ended: ${round.get("name")}`);
   const players = round.currentGame.players;
   players.forEach(p => {
-    const coins = p.get("coins");
+    const tokens = p.get("tokens");
     const oldPoints = p.get("points") || 0;
-    const newPoints = oldPoints + coins;
+    const newPoints = oldPoints + tokens;
     p.set("points", newPoints);
-    console.log(`Player ${p.id} coins at end of round: ${coins}`);
+    console.log(`Player ${p.id} tokens at end of round: ${tokens}`);
     console.log(`Player ${p.id} points at end of round: ${p.get("points") || 0}`);
   });
 });
@@ -145,7 +224,7 @@ Empirica.onGameEnded(({ game }) => {
   console.log("Game ended");
   const players = game.players;
   players.forEach(p => {
-    const finalCoins = p.get("coins");
-    console.log(`Player ${p.id} final coins: ${finalCoins}`);
+    const finalTokens = p.get("tokens");
+    console.log(`Player ${p.id} final tokens: ${finalTokens}`);
   });
 });

@@ -7,7 +7,7 @@ export function Credits() {
   const players = usePlayers();
   const round = useRound();
   const [roundSummary, setRoundSummary] = useState({
-    startingCoins: 10,
+    startingTokens: 10,
     contributionSpent: 0,
     monitoringSpent: 0,
     share: 0,
@@ -15,14 +15,14 @@ export function Credits() {
     punishmentReceived: 0,
     transfersSent: 0,
     transfersReceived: 0,
-    endingCoins: 0
+    endingTokens: 0
   });
   const [points, setPoints] = useState(player.get("points") || 0);
 
   useEffect(() => {
     // Get the current round data directly from player and player.round
     // Making sure to access the specific data fields that were actually set during gameplay
-    const startingCoins = player.round.get("initialCoins") || player.get("initialCoins") || 10;
+    const startingTokens = player.round.get("initialTokens") || player.get("initialTokens") || 10;
     const contributionSpent = player.round.get("contribution") || player.round.get("contributionAmount") || 0;
     const monitoringSpent = player.round.get("monitoringCost") || player.round.get("monitoringAmount") || 0;
     const totalContribution = round.get("totalContribution");
@@ -42,13 +42,13 @@ export function Credits() {
         }
       });
     }
-    const endingCoins = player.get("coins") || 0;
+    const endingTokens = player.get("tokens") || 0;
     
     // For debugging - log all relevant data to console
     console.log("Player data:", {
       id: player.id,
       roundId: round.id,
-      startingCoins,
+      startingTokens,
       contributionSpent,
       monitoringSpent,
       share,
@@ -56,14 +56,14 @@ export function Credits() {
       punishmentReceived,
       transfersSent,
       transfersReceived,
-      endingCoins,
+      endingTokens,
       playerRoundData: player.round.data,
       playerData: player.data
     });
     
     // Update summary
     setRoundSummary({
-      startingCoins,
+      startingTokens,
       contributionSpent,
       monitoringSpent,
       share,
@@ -71,7 +71,7 @@ export function Credits() {
       punishmentReceived,
       transfersSent,
       transfersReceived,
-      endingCoins
+      endingTokens
     });
     // Update points
     setPoints(player.get("points") || 0);
@@ -84,8 +84,8 @@ export function Credits() {
         <h2 className="text-2xl font-semibold text-empirica-600 mb-4">Your Round Transactions</h2>
         <div className="space-y-3">
           <p className="flex justify-between">
-            <span>Starting coins:</span> 
-            <span className="font-bold">{roundSummary.startingCoins}</span>
+            <span>Starting tokens:</span> 
+            <span className="font-bold">{roundSummary.startingTokens}</span>
           </p>
           <div className="border-t border-gray-100 my-1"></div>
           {/* Contributions Section */}
@@ -143,15 +143,15 @@ export function Credits() {
         <div className="flex flex-col md:flex-row md:items-center justify-between">
           <div>
             <p className="text-lg mb-2">
-              <span className="font-medium">Ending coin balance:</span> 
-              <span className="text-xl font-bold ml-2">{roundSummary.endingCoins}</span>
+              <span className="font-medium">Ending token balance:</span> 
+              <span className="text-xl font-bold ml-2">{roundSummary.endingTokens}</span>
             </p>
             <p className="text-lg">
               <span className="font-medium">Your accumulated points:</span>
               <span className="text-xl font-bold ml-2">{points}</span>
             </p>
             <p className="text-sm text-gray-600 mt-2">
-              All coins are converted to points at the end of each round.
+              All tokens are converted to points at the end of each round.
             </p>
           </div>
           <div className="mt-4 md:mt-0">

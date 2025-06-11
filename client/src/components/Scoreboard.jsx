@@ -6,7 +6,7 @@ export function Scoreboard() {
   const players = usePlayers();
   const [totalDonated, setTotalDonated] = useState(0);
 
-  const coins = player.get("coins") ?? 0;
+  const tokens = player.get("tokens") ?? 0;
   const contribution = player.round.get("contribution") || 0;
 
   useEffect(() => {
@@ -18,8 +18,8 @@ export function Scoreboard() {
     <div className="p-6 border rounded-xl w-80 shadow-md bg-white mb-8">
       <h3 className="text-lg font-bold mb-4 text-gray-800">Scoreboard</h3>
       <div className="flex justify-between text-base mb-2">
-        <span>Your Coins:</span>
-        <span>{coins}</span>
+        <span>Your Tokens:</span>
+        <span>{tokens}</span>
       </div>
       <div className="flex justify-between text-base mb-2">
         <span>Last Contribution:</span>

@@ -1,73 +1,54 @@
-import React, { useState, useEffect } from "react";
-import { usePlayers, usePlayer } from "@empirica/core/player/classic/react";
+// client/src/components/PunishmentComponent.jsx
+import React from "react";
+import { usePunishment } from "../hooks/usePunishment";
 
 export function PunishmentComponent() {
-  const players = usePlayers(); // Get all players
-  const currentPlayer = usePlayer(); // Get the current player
-  const [punishedPlayers, setPunishedPlayers] = useState([]); // State to track selected players
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    console.log("All players:", players); // Log all player objects
-  }, [players]); // Runs whenever players update
-
-  const handleCheckboxChange = (playerId, isChecked) => {
-    if (isChecked) {
-      // Add the player to punished list
-      setPunishedPlayers((prev) => [...prev, playerId]);
-    } else {
-      // Remove the player from punished list
-      setPunishedPlayers((prev) => prev.filter((id) => id !== playerId));
-    }
-  };
-
-  const handlePunishClick = () => {
-    const punishmentCost = punishedPlayers.length;
-    const playerCoins = currentPlayer.get("coins") || 0;
-
-    if (playerCoins >= punishmentCost) {
-      punishedPlayers.forEach((playerId) => {
-        const player = players.find((p) => p.id === playerId);
-        if (player) {
-          const currentPunishment = player.round.get("punishment") || 0;
-          player.round.set("punishment", currentPunishment + 1); // Increase punishment count
-        }
-      });
-      currentPlayer.set("coins", playerCoins - punishmentCost); // Deduct cost
-      currentPlayer.stage.set("submit", true);
-      setError(null); // Clear any previous errors
-    } else {
-      setError("Error! Not enough coins.");
-    }
-  };
+  const {
+    players,
+    punishedIds,
+    error,
+    cost,
+    togglePunish,
+    submitPunishment,
+  } = usePunishment();
 
   return (
-    <div className="p-4 border rounded">
-      <h2 className="text-lg font-bold">Punish Players</h2>
-      <ul className="list-disc pl-5">
+    <div className="p-6 border rounded-lg shadow-md">
+      <h2 className="text-2xl font-semibold mb-4">Select Players to Punish</h2>
+
+      <ul className="space-y-2">
         {players
-          .filter((p) => p.id !== currentPlayer?.id) // Exclude the current player
-          .map((player) => (
-            <li key={player.id} className="flex items-center">
+          .filter((p) => p.id !== players.current?.id)
+          .map((p) => (
+            <li key={p.id} className="flex items-center">
               <input
                 type="checkbox"
-                id={`player-${player.id}`}
-                onChange={(e) =>
-                  handleCheckboxChange(player.id, e.target.checked)
-                }
-                className="mr-2"
+                id={`punish-${p.id}`}
+                checked={punishedIds.includes(p.id)}
+                onChange={() => togglePunish(p.id)}
+                className="mr-3"
               />
-              <label htmlFor={`player-${player.id}`}>{player.get("name")}</label>
+              <label htmlFor={`punish-${p.id}`}>
+                {p.get("name")} ({p.id})
+              </label>
             </li>
           ))}
       </ul>
-      <p className="mt-2">Punishment cost: {punishedPlayers.length} coins</p>
-      {error && <p className="text-red-600 font-bold">{error}</p>}
+
+      <div className="mt-4">
+        <p>
+          <strong>Cost:</strong> {cost} token{cost !== 1 && "s"}
+        </p>
+        {error && (
+          <p className="text-red-600 font-bold mt-2">{error}</p>
+        )}
+      </div>
+
       <button
-        onClick={handlePunishClick}
-        className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 transition"
+        onClick={submitPunishment}
+        className="mt-6 px-5 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition"
       >
-        Punish
+        Confirm Punishment
       </button>
     </div>
   );
