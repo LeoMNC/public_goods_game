@@ -1,12 +1,12 @@
 // client/src/intro-exit/Introduction.jsx
 import React from "react";
-import { usePlayers } from "@empirica/core/player/classic/react";
+import { usePlayer, usePlayers } from "@empirica/core/player/classic/react";
 import { Button } from "../components/Button";
 
 export function Introduction({ next }) {
-  const players = usePlayers();
-  if (!players) return <div>Loading players...</div>;
-const playerCount = players?.length ?? 1;
+  const player = usePlayer();
+  if (!player) return <div>Loading players...</div>;
+  const playerCount = player.currentGroup?.players?.length ?? 1;
   return (
     <div className="mt-3 sm:mt-5 p-20">
       <h3 className="text-lg leading-6 font-medium text-gray-900">
