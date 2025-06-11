@@ -3,11 +3,14 @@ factors:
     name: playerCount
     values:
       - value: 2
+      - value: 3
+      - value: 4
       - value: 5
   - desc: How many times participants will make a choice
     name: numRounds
     values:
       - value: 7
+      - value: 5
   - desc: Can players chat with each other during the game?
     name: chatEnabled
     values:
@@ -15,22 +18,44 @@ factors:
       - value: false
 
 treatments:
-  - desc: A short iterated public goods game with 2 players
+  - name: 3_players_chat
+    desc: 3 players with chat enabled
     factors:
-      playerCount: 2
-      numRounds: 3
+      playerCount: 3
+      numRounds: 5
       chatEnabled: true
-    name: default
-  - desc: A long iterated public goods game
-    factors:
-      playerCount: 2
-      numRounds: 7
-      chatEnabled: false
-    name: long_iterated
-  - desc: A long iterated public goods game with chat
-    factors:
-      playerCount: 2
-      numRounds: 7
-      chatEnabled: true
-    name: long_iterated_chat
 
+  - name: 3_players_nochat
+    desc: 3 players with chat disabled
+    factors:
+      playerCount: 3
+      numRounds: 5
+      chatEnabled: false
+
+  - name: 4_players_chat
+    desc: 4 players with chat enabled
+    factors:
+      playerCount: 4
+      numRounds: 5
+      chatEnabled: true
+
+  - name: 4_players_nochat
+    desc: 4 players with chat disabled
+    factors:
+      playerCount: 4
+      numRounds: 5
+      chatEnabled: false
+
+  - name: 5_players_chat
+    desc: 5 players with chat enabled
+    factors:
+      playerCount: 5
+      numRounds: 5
+      chatEnabled: true
+
+  - name: 5_players_nochat
+    desc: 5 players with chat disabled
+    factors:
+      playerCount: 5
+      numRounds: 5
+      chatEnabled: false
