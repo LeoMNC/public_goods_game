@@ -17,11 +17,14 @@ export function usePunishment() {
   }, []);
 
   const submitPunishment = useCallback(() => {
+    if (!currentPlayer) return;
+
     const tokens = currentPlayer.get("tokens") || 0;
     if (tokens < cost) {
       setError(`Not enough tokens. You have ${tokens}, need ${cost}.`);
       return;
     }
+
     currentPlayer.round.set("givenPunishments", punishedIds);
     currentPlayer.stage.set("submit", true);
     setError(null);
@@ -32,12 +35,13 @@ export function usePunishment() {
 
 function PunishmentComponent() {
   const { players, punishedIds, error, cost, togglePunish, submitPunishment } = usePunishment();
+  const currentPlayer = usePlayer();
 
   return (
     <div className="p-6 border rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold mb-4">Select Players to Punish</h2>
       <ul className="space-y-2">
-        {players.filter((p) => p.id !== players.current?.id).map((p) => (
+        {players.filter((p) => p.id !== currentPlayer?.id).map((p) => (
           <li key={p.id} className="flex items-center">
             <input
               type="checkbox"

@@ -8,12 +8,12 @@ export function Credits() {
   const round = useRound();
   const [roundSummary, setRoundSummary] = useState({
     startingTokens: 10,
-    contributionSpent: 0,
-    monitoringSpent: 0,
+    contributionCost: 0,
+    monitoringCost: 0,
     share: 0,
-    punishmentSpent: 0,
+    punishmentCost: 0,
     punishmentReceived: 0,
-    transfersSent: 0,
+    transfersCost: 0,
     transfersReceived: 0,
     endingTokens: 0
   });
@@ -22,17 +22,13 @@ export function Credits() {
   useEffect(() => {
     // Get the current round data directly from player and player.round
     // Making sure to access the specific data fields that were actually set during gameplay
-    const startingTokens = player.round.get("initialTokens") || player.get("initialTokens") || 10;
-    const contributionSpent = player.round.get("contribution") || player.round.get("contributionAmount") || 0;
-    const monitoringSpent = player.round.get("monitoringCost") || player.round.get("monitoringAmount") || 0;
-    const totalContribution = round.get("totalContribution");
-    const contributionMultiplier = 2;
-    const roundPool = totalContribution * contributionMultiplier;
-    const share = roundPool / players.length;
-    
-    const punishmentSpent = player.round.get("punishSpent") || player.round.get("punishmentSpent") || 0;
-    const punishmentReceived = player.round.get("punishmentReceived") || 0;
-    const transfersSent = player.round.get("transferSpent") || player.round.get("transfersSent") || 0;
+    const startingTokens = 10;
+    const contributionCost = player.round.get("contribution")  || 0;
+    const contributionReturn = player.round.get("share") || 0;
+    const monitoringCost = player.round.get("monitoringCost") || 0;
+    const punishmentCost = player.round.get("givenPunishments").length || 0;
+    const punishmentPenalty = player.round.get("punishmentPenalty") || 0;
+    const transfersCost = player.round.get("transfersSent") || 0;
     let transfersReceived = player.round.get("transfersReceived") || 0;
     if (transfersReceived === 0) {
       players.forEach(p => {
@@ -49,7 +45,7 @@ export function Credits() {
       id: player.id,
       roundId: round.id,
       startingTokens,
-      contributionSpent,
+      contributionCost,
       monitoringSpent,
       share,
       punishmentSpent,
@@ -64,7 +60,7 @@ export function Credits() {
     // Update summary
     setRoundSummary({
       startingTokens,
-      contributionSpent,
+      contributionCost,
       monitoringSpent,
       share,
       punishmentSpent,
@@ -91,7 +87,7 @@ export function Credits() {
           {/* Contributions Section */}
           <p className="flex justify-between">
             <span>Contributed to group pool:</span> 
-            <span className="font-bold text-amber-600">-{roundSummary.contributionSpent}</span>
+            <span className="font-bold text-amber-600">-{roundSummary.contributionCost}</span>
           </p>
           <p className="flex justify-between">
             <span>Spent on monitoring:</span> 
@@ -124,15 +120,14 @@ export function Credits() {
           {/* Final Calculation */}
           <div className="border-t border-gray-200 my-2"></div>
           <p className="flex justify-between text-lg font-semibold">
-            <span>Net transactions:</span> 
-            <span>
+            <span>Net transactions:</span> <span>
               {roundSummary.share
-                - roundSummary.contributionSpent
-                - roundSummary.monitoringSpent
-              - roundSummary.punishmentSpent 
-              - roundSummary.punishmentReceived 
-              - roundSummary.transfersSent 
-              + roundSummary.transfersReceived
+                - roundSummary.contributionCost
+                - roundSummary.monitoringCost
+                - roundSummary.punishmentCost
+                - roundSummary.punishmentReceived
+                - roundSummary.transfersSent
+                + roundSummary.transfersReceived
               }
             </span>
           </p>
