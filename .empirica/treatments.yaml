@@ -21,7 +21,7 @@ treatments:
   - name: testing
     desc: 2 players, 3 rounds, chat enabled
     factors:
-      playerCount: 3
+      playerCount: 2
       numRounds: 5
       chatEnabled: true
 
