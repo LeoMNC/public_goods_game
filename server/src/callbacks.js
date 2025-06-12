@@ -62,7 +62,7 @@ Empirica.onStageEnded(({ stage }) => {
   const players = stage.currentGame.players;
   console.log(`Stage ended: ${stageName} in round ${roundName}`);
 
-  switch (stageName) {  
+  switch (stageName) {
     case "contribution":
       console.log("Processing contributions...");
       players.forEach(p => {
@@ -70,11 +70,10 @@ Empirica.onStageEnded(({ stage }) => {
         console.log(`Player ${p.id} contributed: ${contribution}`);
 
         // Immediately deduct contribution from tokens
-        const newTokens = p.get("tokens") - contribution;
-        p.set("tokens", newTokens);
-        p.round.set("kept", newTokens);
-
-        console.log(`Player ${p.id} kept: ${newTokens}, new balance: ${p.get("tokens")}`);
+        const keptTokens = p.get("tokens") - contribution;
+        p.set("tokens", keptTokens);
+        p.round.set("kept", 10 - keptTokens);
+        console.log(`Player ${p.id} kept: ${p.get("kept")}, new balance: ${p.get("tokens")}`);
       });
 
       // Calculate total contribution and store at round level for later use
