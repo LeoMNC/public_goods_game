@@ -36,7 +36,6 @@ export function usePunishment() {
 function PunishmentComponent() {
   const { players, punishedIds, error, cost, togglePunish, submitPunishment } = usePunishment();
   const currentPlayer = usePlayer();
-
   return (
     <div className="p-6 border rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold mb-4">Select Players to Punish</h2>

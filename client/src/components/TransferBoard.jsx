@@ -58,15 +58,9 @@ export function TransferBoard() {
           ...currentReceived,
           { from: currentPlayer.id, amount }
         ]);
-        
-        // Update recipient's tokens
-        const recipientTokens = player.get("tokens") || 0;
-        player.set("tokens", recipientTokens + amount);
       }
     });
 
-    // Deduct the total amount transferred
-    currentPlayer.set("tokens", playerTokens - totalTransfer);
 
     // Mark the stage as submitted
     currentPlayer.stage.set("submit", true);
