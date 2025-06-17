@@ -7,6 +7,12 @@ export function Introduction({ next }) {
   const player = usePlayer();
   if (!player) return <div>Loading players...</div>;
   const playerCount = player.currentGroup?.players?.length ?? 1;
+
+  const exampleContribution = 10;
+  const totalContribution = exampleContribution * playerCount;
+  const multipliedPool = totalContribution * 2;
+  const individualShare = (multipliedPool / playerCount).toFixed(2);
+
   return (
     <div className="mt-3 sm:mt-5 p-20">
       <h3 className="text-lg leading-6 font-medium text-gray-900">
@@ -24,13 +30,13 @@ export function Introduction({ next }) {
           * Tokens contributed to the shared pool will be <strong>multiplied by 2</strong> and then <strong>divided equally</strong> among all {playerCount} participants, regardless of how much each person contributed.
         </p>
         <p>
-          For example, if the group contributes a total of 6 tokens to the common pool:
+          For example, if each player contributes {exampleContribution} tokens:
           <br />
-          6 tokens × 2 = 12 tokens
+          {exampleContribution} tokens × {playerCount} = {totalContribution} tokens
           <br />
-          12 ÷ {playerCount} = {(12 / playerCount).toFixed(2)} tokens
+          {totalContribution} ÷ {playerCount} = {individualShare} tokens
           <br />
-          Each player earns <strong>{(12 / playerCount).toFixed(2)} tokens from the pool</strong>, plus any tokens they kept for themselves.
+          Each player earns <strong>{individualShare} tokens from the pool</strong>, plus any tokens they kept for themselves.
         </p>
         <p><strong>Your goal is to earn as many tokens as possible.</strong></p>
       </div>
