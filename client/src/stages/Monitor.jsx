@@ -45,7 +45,7 @@ export function Monitor() {
             </svg>
           </div>
           <p className="text-left">
-            You can pay <span className="font-bold">1 token per player</span> to monitor them. For each player you monitor, you'll see how many tokens they contributed in the previous round. This information will be shown to you at the beginning of the next round. You can select multiple players or none at all.
+            You can pay <span className="font-bold">1 token per player</span> to monitor them. For each player you monitor, you'll see how many tokens they contributed in the <strong>previous round</strong>. This information will be shown to you at the <strong>beginning of the next round</strong>. You can select multiple players or none at all.
           </p>
         </div>
       </div>
