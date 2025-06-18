@@ -1,0 +1,17 @@
+# Don’t send local dependencies or build artifacts
+**/node_modules
+**/dist
+**/build
+
+# OS / editor cruft
+.DS_Store
+.vscode
+.idea
+
+# Logs, env files, temp
+*.log
+*.env
+
+# Git metadata
+.git
+.gitignore

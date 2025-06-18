@@ -1,28 +1,32 @@
-# 1) Base image with Node + Empirica CLI
+# Base image with Node + Empirica CLI
 FROM ghcr.io/empiricaly/empirica:latest
 
+# Set working dir
 WORKDIR /app
 
-# 2) Install server dependencies
-COPY server/package*.json server/
+# 1) Install server dependencies
+COPY server/package.json server/package-lock.json server/
 WORKDIR /app/server
-RUN npm ci
+RUN empirica npm install
 
-# 3) Install client dependencies
-COPY client/package*.json client/
+# 2) Install client dependencies
+WORKDIR /app
+COPY client/package.json client/package-lock.json client/
 WORKDIR /app/client
-RUN npm ci
+RUN empirica npm install
 
-# 4) Copy the rest of your source
+# 3) Copy the rest of your application code
 WORKDIR /app
 COPY . .
 
-# 5) (Optional) Install Vite & esbuild globally for dev
-RUN npm install -g vite esbuild
+# 4) (Optional) Install global dev tools if you need them
+#    You can remove this if you only ever run in prod mode.
+RUN empirica npm install -g vite esbuild
 
-# 6) Expose all the ports your dev setup uses
-EXPOSE 3000 8844 5173 5174
+# 5) Expose only the ports your app actually uses
+#    - 3000: Empirica backend + admin UI
+#    - 8844: Empirica HMR channel (dev mode)
+EXPOSE 3000 8844
 
-# 7) Clean out any stale local state, cd into client, and start dev server
-WORKDIR /app
-CMD ["sh", "-c", "rm -rf .empirica/local/* && cd client && npm run dev"]
+# 6) On container start, wipe stale local data and launch Empirica
+CMD ["sh","-c","rm -rf .empirica/local/* && empirica"]

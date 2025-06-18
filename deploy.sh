@@ -1,7 +1,6 @@
+#!/usr/bin/env bash
 # deploy.sh
 # Stop, remove, pull, and run the Docker container on the Droplet
-
-#!/usr/bin/env bash
 set -euo pipefail
 
 # Usage: ./deploy.sh [<docker-user>] [<tag>]
@@ -16,15 +15,16 @@ DOCKER_USER="${1:-$DEFAULT_USER}"
 TAG="${2:-$DEFAULT_TAG}"
 IMAGE="${DOCKER_USER}/public-goods-game:${TAG}"
 
-echo "Deploying ${IMAGE} to Droplet..."
+echo "[0/4] ⇒ Deploying ${IMAGE} to Droplet..."
 
-docker stop pgg    >/dev/null 2>&1 || true
-docker rm   pgg    >/dev/null 2>&1 || true
+echo "[1/4] ⇒ Stopping existing container"
+docker stop pgg >/dev/null 2>&1 || true
+docker rm   pgg >/dev/null 2>&1 || true
 
-echo "Pulling image ${IMAGE}..."
+echo "[2/4] ⇒ Pulling image ${IMAGE}"
 docker pull "${IMAGE}"
 
-echo "Starting container pgg..."
+echo "[3/4] ⇒ Starting container pgg"
 docker run -d \
   --name pgg \
   -p 3000:3000 \
@@ -33,4 +33,4 @@ docker run -d \
   --restart unless-stopped \
   "${IMAGE}"
 
-echo "✅ Container pgg is running."
+echo "[4/4] ⇒ ✅ Container pgg is running"
