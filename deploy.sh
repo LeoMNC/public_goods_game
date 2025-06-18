@@ -25,7 +25,7 @@ echo "[2/4] ⇒ Pulling image ${IMAGE}"
 docker pull "${IMAGE}"
 
 echo "[3/4] ⇒ Starting container pgg"
-docker run -d \
+docker run \
   --name pgg \
   -p 3000:3000 \
   -p 8844:8844 \
