@@ -33,4 +33,4 @@ docker run -d \
   --restart unless-stopped \
   "${IMAGE}"
 
-echo "[4/4] ⇒ ✅ Container pgg is running"
+echo "[4/4] ⇒ ✅ Container pgg is running."
