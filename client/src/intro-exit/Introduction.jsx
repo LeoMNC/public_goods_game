@@ -1,17 +1,21 @@
 // client/src/intro-exit/Introduction.jsx
 import React from "react";
-import { usePlayer, usePlayers } from "@empirica/core/player/classic/react";
+import { usePlayer, usePlayers, useGame } from "@empirica/core/player/classic/react";
 import { Button } from "../components/Button";
 import stagesImg from "../stages/Stages.png";
 
 export function Introduction({ next }) {
   const player = usePlayer();
   if (!player) return <div>Loading players...</div>;
-  const playerCount = player.currentGroup?.players?.length ?? 1;
+
+  const game = useGame();
+  const { pCount } = game.get("treatment");
+  console.log(`Player count: ${pCount}`);
+  const playerCount = Number.isFinite(+pCount) ? +pCount : 1;
 
   const groupContribution = 5; // total contribution from the whole group
   const doubledPool = groupContribution * 2;
-  const individualShare = (doubledPool / 4);
+  const individualShare = (doubledPool / playerCount);
 
   return (
     <div className="max-w-3xl mx-auto p-8 space-y-6">
@@ -19,7 +23,7 @@ export function Introduction({ next }) {
 
       <div className="text-gray-800 space-y-4">
         <p> 
-          Welcome! You are now part of a group of players participating in the <strong>Games and Strategic Interaction</strong> study.
+          Welcome! You are now part of a group of {playerCount} players participating in the <strong>Games and Strategic Interaction</strong> study.
         </p>
         <p>
           Each round, every player starts with <strong>10 tokens</strong> and progresses through <strong>6 stages</strong>. This cycle repeats for <strong>5 rounds</strong>.

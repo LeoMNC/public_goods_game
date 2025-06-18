@@ -1,23 +1,28 @@
+# 1) Base image with Node + Empirica CLI
 FROM ghcr.io/empiricaly/empirica:latest
 
 WORKDIR /app
+
+# 2) Install server dependencies
+COPY server/package*.json server/
+WORKDIR /app/server
+RUN npm ci
+
+# 3) Install client dependencies
+COPY client/package*.json client/
+WORKDIR /app/client
+RUN npm ci
+
+# 4) Copy the rest of your source
+WORKDIR /app
 COPY . .
 
-# Install all dependencies (server and client)
-WORKDIR /app/server
-RUN empirica npm install
+# 5) (Optional) Install Vite & esbuild globally for dev
+RUN npm install -g vite esbuild
 
-WORKDIR /app/client
-RUN empirica npm install
-
-# Ensure Vite and esbuild are installed globally (for dev mode)
-RUN npm install --global vite esbuild
-
-# Return to root
-WORKDIR /app
-
-# Expose ports
+# 6) Expose all the ports your dev setup uses
 EXPOSE 3000 8844 5173 5174
 
-# Remove stale local file & launch
-CMD ["sh", "-c", "rm -f .empirica/local/tajriba.json && empirica"]
+# 7) Clean out any stale local state, cd into client, and start dev server
+WORKDIR /app
+CMD ["sh", "-c", "rm -rf .empirica/local/* && cd client && npm run dev"]

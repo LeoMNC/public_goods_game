@@ -11,12 +11,13 @@ export function usePunishment() {
   const cost = punishedIds.length;
 
   const togglePunish = useCallback((playerId) => {
-    setPunishedIds((prev) =>
-      prev.includes(playerId)
-        ? prev.filter((id) => id !== playerId)
-        : [...prev, playerId]
-    );
-  }, []);
+    setError(null);
+    setPunishedIds((prev) => 
+    prev.includes(playerId)
+      ? prev.filter((id) => id !== playerId)
+      : [...prev, playerId]);
+}, []);
+
 
   const submitPunishment = useCallback(() => {
     if (!currentPlayer) return;
