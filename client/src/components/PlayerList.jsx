@@ -33,7 +33,6 @@ export function PlayerList() {
         }
       });
       currentPlayer.set("monitoredPlayers", monitoredPlayers); // 👈 Save who was monitored
-      currentPlayer.set("tokens", playerTokens - monitoringCost); // Deduct cost
       currentPlayer.stage.set("submit", true);
       setError(null);
     } else {

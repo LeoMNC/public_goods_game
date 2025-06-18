@@ -6,140 +6,158 @@ export function Credits() {
   const player = usePlayer();
   const players = usePlayers();
   const round = useRound();
+
   const [roundSummary, setRoundSummary] = useState({
-    startingTokens: 10,
-    contributionCost: 0,
-    monitoringCost: 0,
-    share: 0,
-    punishmentCost: 0,
-    punishmentReceived: 0,
-    transfersCost: 0,
+    startingTokens:    10,
+    contributionCost:  0,
+    monitoringCost:    0,
+    share:             0,
+    punishmentCost:    0,
+    punishmentPenalty: 0,
+    transfersSent:     0,
     transfersReceived: 0,
-    endingTokens: 0
+    endingTokens:      0,
   });
+
   const [points, setPoints] = useState(player.get("points") || 0);
 
   useEffect(() => {
-    // Get the current round data directly from player and player.round
-    // Making sure to access the specific data fields that were actually set during gameplay
-    const startingTokens = 10;
-    const contributionCost = player.round.get("contribution")  || 0;
-    const contributionReturn = player.round.get("share") || 0;
-    const monitoringCost = player.round.get("monitoringCost") || 0;
-    const punishmentCost = player.round.get("givenPunishments").length || 0;
-    const punishmentPenalty = player.round.get("punishmentPenalty") || 0;
-    const transfersCost = player.round.get("transfersSent") || 0;
-    let transfersReceived = player.round.get("transfersReceived") || 0;
-    if (transfersReceived === 0) {
-      players.forEach(p => {
-        if (p.id !== player.id) {
-          const transfers = p.round.get("transfers") || {};
-          transfersReceived += transfers[player.id] || 0;
-        }
-      });
-    }
-    const endingTokens = player.get("tokens") || 0;
-    
-    // For debugging - log all relevant data to console
-    console.log("Player data:", {
-      id: player.id,
-      roundId: round.id,
+    if (!player) return;
+
+    const startingTokens     = 10;
+    const contributionCost   = player.round.get("contribution")    || 0;
+    const share              = player.round.get("share")           || 0;
+    const monitoringCost     = player.round.get("monitoringCost")  || 0;
+    const punishmentCost     = (player.round.get("givenPunishments") || []).length;
+    const punishmentPenalty  = player.round.get("punishmentPenalty") || 0;
+    const transfersSent      = player.round.get("transfersSent")   || 0;
+    const transfersReceived  = player.round.get("transfersReceived") || 0;
+    const endingTokens       = player.get("tokens")               || 0;
+
+    console.log("ROUND SUMMARY →", {
       startingTokens,
       contributionCost,
-      monitoringSpent,
       share,
-      punishmentSpent,
-      punishmentReceived,
+      monitoringCost,
+      punishmentCost,
+      punishmentPenalty,
       transfersSent,
       transfersReceived,
       endingTokens,
-      playerRoundData: player.round.data,
-      playerData: player.data
     });
-    
-    // Update summary
+
     setRoundSummary({
       startingTokens,
       contributionCost,
-      monitoringSpent,
       share,
-      punishmentSpent,
-      punishmentReceived,
+      monitoringCost,
+      punishmentCost,
+      punishmentPenalty,
       transfersSent,
       transfersReceived,
-      endingTokens
+      endingTokens,
     });
-    // Update points
+
     setPoints(player.get("points") || 0);
   }, [player, players, round]);
 
+  const {
+    startingTokens,
+    contributionCost,
+    share,
+    monitoringCost,
+    punishmentCost,
+    punishmentPenalty,
+    transfersSent,
+    transfersReceived,
+    endingTokens,
+  } = roundSummary;
+
+  const netTransactions =
+    share
+    - contributionCost
+    - monitoringCost
+    - punishmentCost
+    - punishmentPenalty
+    - transfersSent
+    + transfersReceived;
+
   return (
     <div className="max-w-5xl mx-auto mt-6 p-8 bg-gray-50 rounded-xl shadow-md">
-      <h1 className="text-3xl font-bold text-center mb-6 text-empirica-700">Round Summary: {round.get("name")}</h1>
+      <h1 className="text-3xl font-bold text-center mb-6 text-empirica-700">
+        Round Summary: {round.get("name")}
+      </h1>
+
       <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
-        <h2 className="text-2xl font-semibold text-empirica-600 mb-4">Your Round Transactions</h2>
+        <h2 className="text-2xl font-semibold text-empirica-600 mb-4">
+          Your Round Transactions
+        </h2>
+
         <div className="space-y-3">
           <p className="flex justify-between">
-            <span>Starting tokens:</span> 
-            <span className="font-bold">{roundSummary.startingTokens}</span>
+            <span>Starting tokens:</span>
+            <span className="font-bold">{startingTokens}</span>
           </p>
-          <div className="border-t border-gray-100 my-1"></div>
+
+          <div className="border-t border-gray-100 my-1" />
+
           {/* Contributions Section */}
           <p className="flex justify-between">
-            <span>Contributed to group pool:</span> 
-            <span className="font-bold text-amber-600">-{roundSummary.contributionCost}</span>
+            <span>Contributed to group pool:</span>
+            <span className="font-bold text-amber-600">-{contributionCost}</span>
           </p>
           <p className="flex justify-between">
-            <span>Spent on monitoring:</span> 
-            <span className="font-bold text-amber-600">-{roundSummary.monitoringSpent}</span>
+            <span>Spent on monitoring:</span>
+            <span className="font-bold text-amber-600">-{monitoringCost}</span>
           </p>
           <p className="flex justify-between">
             <span>Share from group pool:</span>
-            <span className="font-bold text-green-600">+{roundSummary.share}</span>
+            <span className="font-bold text-green-600">+{share}</span>
           </p>
-          <div className="border-t border-gray-100 my-1"></div>
+
+          <div className="border-t border-gray-100 my-1" />
+
           {/* Punishments Section */}
           <p className="flex justify-between">
-            <span>Spent on punishing others:</span> 
-            <span className="font-bold text-amber-600">-{roundSummary.punishmentSpent}</span>
+            <span>Spent on punishing others:</span>
+            <span className="font-bold text-amber-600">-{punishmentCost}</span>
           </p>
           <p className="flex justify-between">
-            <span>Lost from being punished:</span> 
-            <span className="font-bold text-red-600">-{roundSummary.punishmentReceived}</span>
+            <span>Lost from being punished:</span>
+            <span className="font-bold text-red-600">-{punishmentPenalty}</span>
           </p>
-          <div className="border-t border-gray-100 my-1"></div>
+
+          <div className="border-t border-gray-100 my-1" />
+
           {/* Transfers Section */}
           <p className="flex justify-between">
-            <span>Sent as transfers to others:</span> 
-            <span className="font-bold text-amber-600">-{roundSummary.transfersSent}</span>
+            <span>Sent as transfers to others:</span>
+            <span className="font-bold text-amber-600">-{transfersSent}</span>
           </p>
           <p className="flex justify-between">
-            <span>Received as transfers from others:</span> 
-            <span className="font-bold text-green-600">+{roundSummary.transfersReceived}</span>
+            <span>Received as transfers from others:</span>
+            <span className="font-bold text-green-600">+{transfersReceived}</span>
           </p>
-          {/* Final Calculation */}
-          <div className="border-t border-gray-200 my-2"></div>
+
+          <div className="border-t border-gray-200 my-2" />
+
+          {/* Net Transactions */}
           <p className="flex justify-between text-lg font-semibold">
-            <span>Net transactions:</span> <span>
-              {roundSummary.share
-                - roundSummary.contributionCost
-                - roundSummary.monitoringCost
-                - roundSummary.punishmentCost
-                - roundSummary.punishmentReceived
-                - roundSummary.transfersSent
-                + roundSummary.transfersReceived
-              }
-            </span>
+            <span>Net transactions:</span>
+            <span>{Number.isFinite(netTransactions) ? netTransactions : 0}</span>
           </p>
         </div>
       </div>
+
       <div className="bg-gradient-to-r from-empirica-50 to-empirica-100 p-6 rounded-lg shadow-sm">
-        <h2 className="text-2xl font-semibold text-empirica-700 mb-3">Round Outcome</h2>
+        <h2 className="text-2xl font-semibold text-empirica-700 mb-3">
+          Round Outcome
+        </h2>
         <div className="flex flex-col md:flex-row md:items-center justify-between">
           <div>
             <p className="text-lg mb-2">
-              <span className="font-medium">Ending token balance:</span> 
-              <span className="text-xl font-bold ml-2">{roundSummary.endingTokens}</span>
+              <span className="font-medium">Ending token balance:</span>
+              <span className="text-xl font-bold ml-2">{endingTokens}</span>
             </p>
             <p className="text-lg">
               <span className="font-medium">Your accumulated points:</span>

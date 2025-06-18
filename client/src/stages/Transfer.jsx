@@ -9,9 +9,10 @@ export function Transfer() {
   const [transfers, setTransfers] = useState({});
   const [error, setError] = useState(null);
 
+  // Initialize zero‐transfers for all other players
   useEffect(() => {
     if (!currentPlayer) return;
-    
+
     const initialTransfers = players.reduce((acc, player) => {
       if (player.id !== currentPlayer.id) {
         acc[player.id] = 0;
@@ -25,12 +26,17 @@ export function Transfer() {
     return <div>Loading...</div>;
   }
 
+  // Only allow 0–5 tokens per recipient
   const handleTransferChange = (playerId, amount) => {
     if (amount < 0 || amount > 5 || isNaN(amount)) return;
     setTransfers((prev) => ({ ...prev, [playerId]: amount }));
   };
 
-  const totalTransfer = Object.values(transfers).reduce((sum, val) => sum + (val || 0), 0);
+  // Sum of all specified transfers
+  const totalTransfer = Object.values(transfers).reduce(
+    (sum, val) => sum + (val || 0),
+    0
+  );
   const playerTokens = currentPlayer.get("tokens") || 0;
 
   const handleTransferClick = () => {
@@ -39,22 +45,28 @@ export function Transfer() {
       return;
     }
 
-    const transfersList = Object.entries(transfers)
+    // 1) Record how much this player sent
+    currentPlayer.round.set("transfersSent", totalTransfer);
+
+    // 2) Update each recipient's received total
+    Object.entries(transfers)
       .filter(([_, amount]) => amount > 0)
-      .map(([playerId, amount]) => ({ recipient: playerId, amount: Number(amount) }));
+      .forEach(([recipient, amount]) => {
+        const recPlayer = players.find((p) => p.id === recipient);
+        if (recPlayer) {
+          const prevReceived =
+            recPlayer.round.get("transfersReceived") || 0;
+          recPlayer.round.set(
+            "transfersReceived",
+            prevReceived + Number(amount)
+          );
+        }
+      });
 
-    currentPlayer.round.set("transfers", transfersList);
-
-    transfersList.forEach(({ recipient, amount }) => {
-      const player = players.find((p) => p.id === recipient);
-      if (player) {
-        const currentReceived = player.round.get("receivedTransfers") || [];
-        player.round.set("receivedTransfers", [...currentReceived, { from: currentPlayer.id, amount }]);
-
-        const recipientTokens = player.get("tokens") || 0;
-      }
-    });
+    // Advance to next stage
     currentPlayer.stage.set("submit", true);
+
+    // Reset local state
     setTransfers({});
     setError(null);
   };
@@ -73,20 +85,29 @@ export function Transfer() {
           <div className="p-4 border rounded">
             <h2 className="text-lg font-bold">Transfer Tokens</h2>
             <ul className="list-disc pl-5">
-              {players.filter((p) => p.id !== currentPlayer?.id).map((player) => (
-                <li key={player.id} className="flex items-center gap-2">
-                  <label htmlFor={`transfer-${player.id}`}>{player.get("name")}</label>
-                  <input
-                    type="number"
-                    id={`transfer-${player.id}`}
-                    min="0"
-                    max="5"
-                    value={transfers[player.id] || 0}
-                    onChange={(e) => handleTransferChange(player.id, Number(e.target.value))}
-                    className="w-16 border rounded px-2"
-                  />
-                </li>
-              ))}
+              {players
+                .filter((p) => p.id !== currentPlayer?.id)
+                .map((player) => (
+                  <li key={player.id} className="flex items-center gap-2">
+                    <label htmlFor={`transfer-${player.id}`}>
+                      {player.get("name")}
+                    </label>
+                    <input
+                      type="number"
+                      id={`transfer-${player.id}`}
+                      min="0"
+                      max="5"
+                      value={transfers[player.id] || 0}
+                      onChange={(e) =>
+                        handleTransferChange(
+                          player.id,
+                          Number(e.target.value)
+                        )
+                      }
+                      className="w-16 border rounded px-2"
+                    />
+                  </li>
+                ))}
             </ul>
             <p className="mt-2">Transfer Total: {totalTransfer} tokens</p>
             {error && <p className="text-red-600 font-bold">{error}</p>}

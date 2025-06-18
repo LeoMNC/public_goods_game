@@ -145,20 +145,15 @@ Empirica.onStageEnded(({ stage }) => {
       players.forEach((p) => {
         const given = p.round.get("givenPunishments") || [];
         const punishCost = given.length;
-        if (punishCost > 0) {
-          const before = p.get("tokens");
-          const after = Math.max(0, before - punishCost);
-          p.set("tokens", after);
-          console.log(`Player ${p.id} paid ${punishCost} tokens for punishing -> ${after}`);
-        }
+        const tokensPostPunishCost = p.get("tokens") - punishCost;
+        p.set("tokens", Math.max(0, tokensPostPunishCost));
+        console.log(`Player ${p.id} paid ${punishCost} tokens for punishing, new balance: ${p.get("tokens")}`);
         const received = punishmentMap[p.id] || 0;
         const penalty = received * 5;
         p.round.set("punishmentReceived", received);
         p.round.set("punishmentPenalty", penalty);
-        if (received > 0) {
-          p.set("tokens", Math.max(0, p.get("tokens") - penalty));
-          console.log(`Player ${p.id}, punished ${received} time(s), lost ${penalty} -> ${p.get("tokens")}`);
-        }
+        p.set("tokens", Math.max(0, p.get("tokens") - penalty));
+        console.log(`Player ${p.id}, punished ${received} time(s), lost ${penalty} -> ${p.get("tokens")}`);
       });
       break;
 
