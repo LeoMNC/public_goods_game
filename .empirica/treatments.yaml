@@ -18,7 +18,7 @@ factors:
       - value: false
 
 treatments:
-  - name: testing
+  - name: _testing
     desc: 2 players, 3 rounds, chat enabled
     factors:
       playerCount: 2
