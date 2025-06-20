@@ -35,7 +35,6 @@ docker run \
   -p 8844:8844 \
   -v empirica_data:/app/.empirica/local \
   --restart unless-stopped \
-  # -d \
   "${IMAGE}"
 
 echo "[6/6] ⇒ ✅ Container pgg is running."
