@@ -15,20 +15,20 @@ DOCKER_USER="${1:-$DEFAULT_USER}"
 TAG="${2:-$DEFAULT_TAG}"
 IMAGE="${DOCKER_USER}/public-goods-game:${TAG}"
 
-echo "[1/6] ⇒ Stopping existing container"
+echo "[1/5] ⇒ Stopping existing container"
 docker stop pgg >/dev/null 2>&1 || true
 docker rm pgg >/dev/null 2>&1 || true
 
-echo "[2/6] ⇒ Removing all unused containers"
+echo "[2/5] ⇒ Removing all unused containers"
 docker container prune -f >/dev/null
 
-echo "[3/6] ⇒ Removing all unused images"
+echo "[3/5] ⇒ Removing all unused images"
 docker image prune -af >/dev/null
 
-echo "[4/6] ⇒ Pulling image ${IMAGE}"
+echo "[4/5] ⇒ Pulling image ${IMAGE}"
 docker pull "${IMAGE}"
 
-echo "[5/6] ⇒ Starting container pgg"
+echo "[5/5] ⇒ Starting container pgg"
 docker run \
   --name pgg \
   -p 3000:3000 \
@@ -36,5 +36,3 @@ docker run \
   -v empirica_data:/app/.empirica/local \
   --restart unless-stopped \
   "${IMAGE}"
-
-echo "[6/6] ⇒ ✅ Container pgg is running."

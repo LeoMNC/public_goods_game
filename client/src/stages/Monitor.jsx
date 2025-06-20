@@ -97,35 +97,48 @@ export function Monitor() {
               (including zero).
             </p>
             <div className="flex flex-col space-y-2 max-w-md mx-auto">
-              {otherPlayers.map((p) => (
-                <div
-                  key={p.id}
-                  className={`p-3 border rounded cursor-pointer transition-colors ${
-                    selectedPlayers.includes(p.id)
-                      ? "bg-blue-100 border-blue-500"
-                      : "bg-white hover:bg-gray-50"
-                  }`}
-                  onClick={() => handlePlayerToggle(p.id)}
-                >
-                  <div className="flex justify-between items-center">
-                    <span>{p.get("name") || `Player ${p.id}`}</span>
-                    {selectedPlayers.includes(p.id) && (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-blue-600"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    )}
+              {otherPlayers.map((p) => {
+                const inputId = `player-${p.id}`;
+                return (
+                  <div key={p.id} className="relative">
+                    <input
+                      type="checkbox"
+                      id={inputId}
+                      name="monitoredPlayers"
+                      value={p.id}
+                      checked={selectedPlayers.includes(p.id)}
+                      onChange={() => handlePlayerToggle(p.id)}
+                      className="absolute opacity-0 w-0 h-0"
+                    />
+                    <label
+                      htmlFor={inputId}
+                      className={`block p-3 border rounded cursor-pointer transition-colors ${
+                        selectedPlayers.includes(p.id)
+                          ? "bg-blue-100 border-blue-500"
+                          : "bg-white hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span>{p.get("name") || `Player ${p.id}`}</span>
+                        {selectedPlayers.includes(p.id) && (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 text-blue-600"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                    </label>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

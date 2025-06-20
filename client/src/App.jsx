@@ -6,7 +6,7 @@ import { Game } from "./Game";
 import { ExitSurvey } from "./intro-exit/ExitSurvey";
 import { Introduction } from "./intro-exit/Introduction";
 import { NameStep } from "./intro-exit/NameStep";
-
+import { MyPlayerForm } from "./intro-exit/playerCreate";
 
 export default function App() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -28,7 +28,7 @@ export default function App() {
       <div className="h-screen relative">
         <EmpiricaMenu position="bottom-left" />
         <div className="h-full overflow-auto">
-          <EmpiricaContext introSteps={introSteps} exitSteps={exitSteps}>
+          <EmpiricaContext introSteps={introSteps} exitSteps={exitSteps} playerCreate={MyPlayerForm}>
             <Game />
           </EmpiricaContext>
         </div>

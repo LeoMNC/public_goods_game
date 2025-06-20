@@ -12,10 +12,11 @@ export function Introduction({ next }) {
   const { pCount } = game.get("treatment");
   console.log(`Player count: ${pCount}`);
   const playerCount = Number.isFinite(+pCount) ? +pCount : 1;
-
-  const groupContribution = 5; // total contribution from the whole group
-  const doubledPool = groupContribution * 2;
-  const individualShare = (doubledPool / playerCount);
+  const examplePlayerCount = 4; // Example for illustration purposes
+  const groupContribution = 6; // total contribution from the whole group
+  const CONTRIBUTION_MULTIPLIER = 2; // the pool is doubled
+  const doubledPool = groupContribution * CONTRIBUTION_MULTIPLIER; // total in the shared pool
+  const individualShare = (doubledPool / examplePlayerCount);
 
   return (
     <div className="max-w-3xl mx-auto p-8 space-y-6">
@@ -26,7 +27,9 @@ export function Introduction({ next }) {
           Welcome! You are now part of a group of {playerCount} players participating in the <strong>Games and Strategic Interaction</strong> study.
         </p>
         <p>
-          Each round, every player starts with <strong>10 tokens</strong> and progresses through <strong>6 stages</strong>. This cycle repeats for <strong>5 rounds</strong>.
+          This game runs for <b>several rounds</b>, each of which has <b>6 stages</b>. In each round, every player starts with <strong>10 tokens</strong> and can spend them in various ways during the different stages.
+          At the end of each round, you may gain or lose tokens based on your actions and those of other players. Whatever is left over will be converted into points and you will receive a summary of your performance.
+          At the end of the game, you can spend your points on prizes like stickers, candy, or extra Sona credits. Try to get as many points as possible to maximize your rewards!
         </p>
         
         <p>In each round, you’ll decide how to use your tokens:</p>
@@ -46,9 +49,11 @@ export function Introduction({ next }) {
           <p>
             If the group collectively contributes {groupContribution} tokens:
             <br />
-            {groupContribution} × 2 = {doubledPool} tokens in the shared pool<br />
-            {doubledPool} ÷ 4 = {individualShare} tokens per player<br />
-            Each player receives <strong>{individualShare} tokens from the pool</strong> + any tokens they kept.
+            {groupContribution} × {CONTRIBUTION_MULTIPLIER} = {doubledPool} tokens in the shared pool<br />
+            There are then opportunities for monitoring, punishment, and reward.<br />
+            At the end of the round, players receive a return from the group investment, and players receive punishment and rewards.<br />
+            {doubledPool} ÷ {examplePlayerCount} = {individualShare} tokens per player. Each player receives <strong>{individualShare} tokens from the pool</strong><br />
+            The final token balance is then converted into points, and tokens reset for the next round.
           </p>
         </div>
         <div className="my-8">
@@ -78,7 +83,7 @@ export function Introduction({ next }) {
               <strong>Stage 5: Transfers</strong> – Send tokens to reward another player.
             </li>
             <li>
-              <strong>Stage 6: Credits</strong> – Review your round summary: contributions, gains, losses.
+              <strong>Stage 6: Credits</strong> – Review your round summary: contributions, gains, & losses.
             </li>
           </ol>
           
@@ -88,7 +93,7 @@ export function Introduction({ next }) {
         </div>
 
         <p className="font-semibold text-lg text-red-700">
-          Remember: Your goal is to earn as many tokens as possible.
+          Remember: Your goal is to earn as many points as possible over the course of the game.
         </p>
       </div>
 
