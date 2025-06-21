@@ -9,6 +9,7 @@ export function Introduction({ next }) {
   if (!player) return <div>Loading players...</div>;
 
   const game = useGame();
+  console.log(`game: ${game}`);
   const { pCount } = game.get("treatment");
   console.log(`Player count: ${pCount}`);
   const playerCount = Number.isFinite(+pCount) ? +pCount : 1;
