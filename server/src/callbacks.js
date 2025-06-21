@@ -40,7 +40,6 @@ Empirica.onGameStart(({ game }) => {
 // Round Start: initialize tokens and round properties
 Empirica.onRoundStart(({ game, round }) => {  // Added game to context
   console.log(`[RoundStart] Round started: ${round.get("name")}`);
-  
   game.players.forEach((p) => {
     p.set("tokens", 10);
     p.round.set("monitoredPlayers", []);

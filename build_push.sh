@@ -1,4 +1,5 @@
 #!/bin/bash
+# ./build_push.sh
 # Build & push multi-arch Docker images with Buildx
 # Usage: ./build_and_publish.sh [<docker-user>] [<tag>]
 # Examples:
