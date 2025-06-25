@@ -66,7 +66,7 @@ Empirica.onStageStart(({ stage }) => {
   const players = stage.round.currentGame.players;  
   // 1) Public‐goods returns
   players.forEach(p => {
-    const share = round.get("playerShare") || 0;
+    const share = stage.round.get("playerShare") || 0;
     const currentTokens = p.get("tokens") || 0;
     p.set("tokens", currentTokens + share);
     console.log(`[StageStart] Player ${p.id} received share: ${share}, new tokens: ${currentTokens + share}`);

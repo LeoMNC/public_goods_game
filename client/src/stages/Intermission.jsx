@@ -9,7 +9,7 @@ export function Intermission() {
   const contributionMultiplier = 2;
 
   const contribution = player.round.get("contribution") || 0;
-  const share = player.round.get("share") || 0;
+  const share = round.get("share") || 0;
   const totalContribution = players.reduce((sum, p) => sum + (p.round.get("contribution") || 0), 0);
   const totalPool = totalContribution * contributionMultiplier;
   const meanContribution = totalContribution / players.length;
@@ -38,7 +38,10 @@ export function Intermission() {
           Over all {players.length} players, <strong>{totalContribution} tokens</strong> were contributed. The average contribution was <strong>{meanContribution.toFixed(2)}</strong> tokens.
         </p>
         <p>
-          After a {contributionMultiplier}x multiplier, the pool became <strong>{totalPool.toFixed(2)} tokens</strong>. This was divided between all {players.length} players, so each player (including you) received <strong>{share.toFixed(2)} tokens</strong>.
+          After a {contributionMultiplier}x multiplier, the pool became <strong>{totalPool.toFixed(2)} tokens</strong>. This was divided between all {players.length} players.
+        </p>
+        <p>
+          So, each player (including you) received <strong>{share.toFixed(2)} tokens</strong>.
         </p>
         {monitoringCost > 0 ? (
           <p>
