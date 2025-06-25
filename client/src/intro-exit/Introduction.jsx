@@ -16,8 +16,8 @@ export function Introduction({ next }) {
   const pCount = treatment.playerCount;
   console.log(`Player count: ${pCount}`);
   const playerCount = Number.isFinite(+pCount) ? +pCount : 1;
-  const examplePlayerCount = 4; // Example for illustration purposes
-  const groupContribution = 6; // total contribution from the whole group
+  const examplePlayerCount = playerCount || 4; // Example for illustration purposes
+  const groupContribution = 12; // total contribution from the whole group
   const CONTRIBUTION_MULTIPLIER = 2; // the pool is doubled
   const doubledPool = groupContribution * CONTRIBUTION_MULTIPLIER; // total in the shared pool
   const individualShare = (doubledPool / examplePlayerCount);

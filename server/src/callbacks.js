@@ -38,9 +38,9 @@ Empirica.onGameStart(({ game }) => {
 });
 
 // Round Start: initialize tokens and round properties
-Empirica.onRoundStart(({ game, round }) => {  // Added game to context
+Empirica.onRoundStart(({ round }) => {  
   console.log(`[RoundStart] Round started: ${round.get("name")}`);
-  const players = game.players; // line 43
+  const players = round.currentGame.players; // line 43
   players.forEach((p) => {
     p.set("tokens", 10);
     p.round.set("monitoredPlayers", []);
@@ -57,13 +57,13 @@ Empirica.onRoundStart(({ game, round }) => {  // Added game to context
 });
 
 // Stage Start
-Empirica.onStageStart(({ game, round, stage }) => {  // Added game to context
+Empirica.onStageStart(({ stage }) => {  
   console.log(`[StageStart] Stage started: ${stage.get("name")}`);
   
   if (stage.get("name") !== "credits") return;
   
   console.log("[StageStart] Processing credits stage");
-  const players = game.players;  
+  const players = stage.round.currentGame.players;  
   // 1) Public‐goods returns
   players.forEach(p => {
     const share = round.get("playerShare") || 0;
@@ -110,12 +110,12 @@ Empirica.onStageStart(({ game, round, stage }) => {  // Added game to context
 });
 
 // Stage End
-Empirica.onStageEnded(({ game, round, stage }) => {  // Added game to context
-  //const stageName = stage.get("name");
-  const roundName = round.get("name");
+Empirica.onStageEnded(({ stage }) => { 
+  const stageName = stage.get("name");
+  // const roundName = round.get("name");
   //console.log(`[StageEnd] Stage ended: ${stageName} in round ${roundName}`);
-  
-  const players = game.players;
+
+  const players = stage.round.currentGame.players;
   switch (stageName) {
     case "contribution":
       console.log("[StageEnd] Processing contributions...");
@@ -233,10 +233,10 @@ Empirica.onStageEnded(({ game, round, stage }) => {  // Added game to context
 });
 
 // Round End
-Empirica.onRoundEnded(({ game, round }) => {  // Added game to context
+Empirica.onRoundEnded(({ round }) => {  
   console.log(`[RoundEnd] Round ended: ${round.get("name")}`);
-  
-  game.players.forEach(p => {  
+  const players = round.currentGame.players;
+  players.forEach(p => {  
     const tokens = p.get("tokens") || 0;
     const oldPoints = p.get("points") || 0;
     const newPoints = oldPoints + tokens;
