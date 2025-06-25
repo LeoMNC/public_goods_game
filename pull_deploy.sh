@@ -15,9 +15,6 @@ DOCKER_USER="${1:-$DEFAULT_USER}"
 TAG="${2:-$DEFAULT_TAG}"
 IMAGE="${DOCKER_USER}/public-goods-game:${TAG}"
 
-echo "[0/5] ⇒ Navigating to parent folder"
-cd ..
-
 echo "[1/5] ⇒ Stopping existing container"
 docker stop pgg >/dev/null 2>&1 || true
 docker rm pgg >/dev/null 2>&1 || true
