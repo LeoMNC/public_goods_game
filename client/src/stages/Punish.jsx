@@ -3,26 +3,34 @@ import React, { useState, useCallback } from "react";
 import { usePlayers, usePlayer } from "@empirica/core/player/classic/react";
 import { Scoreboard } from "../components/Scoreboard";
 
+// Client‐side multiplier must match server
+const PUNISH_MULTIPLIER = 5;
+
 export function usePunishment() {
   const players = usePlayers();
   const currentPlayer = usePlayer();
   const [punishedIds, setPunishedIds] = useState([]);
   const [error, setError] = useState(null);
+
+  // number of targets selected
   const cost = punishedIds.length;
+  // total penalty inflicted on targets
+  const penalty = cost * PUNISH_MULTIPLIER;
 
   const togglePunish = useCallback((playerId) => {
     setError(null);
-    setPunishedIds((prev) => 
-    prev.includes(playerId)
-      ? prev.filter((id) => id !== playerId)
-      : [...prev, playerId]);
-}, []);
-
+    setPunishedIds((prev) =>
+      prev.includes(playerId)
+        ? prev.filter((id) => id !== playerId)
+        : [...prev, playerId]
+    );
+  }, []);
 
   const submitPunishment = useCallback(() => {
     if (!currentPlayer) return;
 
     const tokens = currentPlayer.get("tokens") || 0;
+    // Ensure punisher can pay the base cost only
     if (tokens < cost) {
       setError(`Not enough tokens. You have ${tokens}, need ${cost}.`);
       return;
@@ -30,24 +38,27 @@ export function usePunishment() {
 
     // 1) Record the raw array of punished IDs
     currentPlayer.round.set("givenPunishments", punishedIds);
+    // 2) Record the punishment cost on this player
+    currentPlayer.round.set("punishmentCost", cost);
+    // 3) Record the eventual total penalty inflicted
+    currentPlayer.round.set("punishmentPenalty", penalty);
 
-    // 2) Advance the stage so server runs case "punish"
+    // 4) Advance to next stage so server handles punish logic
     currentPlayer.stage.set("submit", true);
 
-    // 3) Clear local state & errors for next round
+    // 5) Reset local state & errors for next usage
     setPunishedIds([]);
     setError(null);
-  }, [currentPlayer, punishedIds, cost]);
+  }, [currentPlayer, punishedIds, cost, penalty]);
 
-  return { players, punishedIds, error, cost, togglePunish, submitPunishment };
+  return { players, punishedIds, error, cost, penalty, togglePunish, submitPunishment };
 }
 
 function PunishmentComponent() {
-  const { players, punishedIds, error, cost, togglePunish, submitPunishment } =
+  const { players, punishedIds, error, cost, penalty, togglePunish, submitPunishment } =
     usePunishment();
   const currentPlayer = usePlayer();
 
-  // disable if they select more punishments than tokens they have
   const tokens = currentPlayer.get("tokens") || 0;
   const disabled = cost > tokens;
 
@@ -69,7 +80,7 @@ function PunishmentComponent() {
                 onChange={() => togglePunish(p.id)}
                 className="mr-3"
               />
-              <label htmlFor={`punish-${p.id}`}>
+              <label htmlFor={`punish-${p.id}`}> 
                 {p.get("name")} ({p.id})
               </label>
             </li>
@@ -79,6 +90,9 @@ function PunishmentComponent() {
       <div className="mt-4">
         <p>
           <strong>Cost:</strong> {cost} token{cost !== 1 && "s"}
+        </p>
+        <p>
+          <strong>Penalty inflicted:</strong> {penalty} total
         </p>
         {error && <p className="text-red-600 font-bold mt-2">{error}</p>}
       </div>
@@ -98,7 +112,7 @@ export function Punish() {
   return (
     <div className="mt-5 px-8 py-6 bg-white rounded-lg shadow-lg">
       <p className="mb-4">
-        <strong>4.2.</strong> Pay 1 token to punish another player. Punished players lose 5 tokens before the next round.
+        <strong>4.2.</strong> Pay 1 token per punishment. Punished players lose 5 tokens per hit before the next round.
       </p>
       <div className="flex justify-center mt-8">
         <div className="w-full max-w-md">

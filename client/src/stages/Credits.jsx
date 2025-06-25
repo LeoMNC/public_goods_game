@@ -9,7 +9,7 @@ export function Credits() {
 
   const [roundSummary, setRoundSummary] = useState({
     startingTokens:    10,
-    contribution:  0,
+    contribution:      0,
     monitoringCost:    0,
     punishmentCost:    0,
     transfersSent:     0,
@@ -24,15 +24,15 @@ export function Credits() {
   useEffect(() => {
     if (!player) return;
 
-    const startingTokens     = 10;
-    const contribution   = player.round.get("contribution")    || 0;
-    const monitoringCost     = player.round.get("monitoringCost")  || 0;
-    const punishmentCost     = (player.round.get("givenPunishments") || []).length;
-    const transfersSent      = player.round.get("transferCost")   || 0;
-    const punishmentPenalty  = player.round.get("punishmentPenalty") || 0;
-    const transfersReceived  = player.round.get("transfersReceived") || 0;
-    const share              = player.round.get("share")           || 0;
-    const endingTokens       = player.get("tokens")               || 0;
+    const startingTokens    = 10;
+    const contribution      = player.round.get("contribution")      || 0;
+    const monitoringCost    = player.round.get("monitoringCost")    || 0;
+    const punishmentCost    = player.round.get("punishmentCost")    || 0;
+    const punishmentPenalty = player.round.get("punishmentPenalty") || 0;
+    const transfersSent     = player.round.get("transfersSent")     || 0;
+    const transfersReceived = player.round.get("transfersReceived") || 0;
+    const share             = round.get("share")                    || 0;
+    const endingTokens      = player.get("tokens")                || 0;
 
     console.log("ROUND SUMMARY →", {
       startingTokens,
@@ -41,7 +41,7 @@ export function Credits() {
       monitoringCost,
       punishmentCost,
       punishmentPenalty,
-      transfersSe,
+      transfersSent,
       transfersReceived,
       endingTokens,
     });
@@ -101,7 +101,6 @@ export function Credits() {
 
           <div className="border-t border-gray-100 my-1" />
 
-          {/* Contributions Section */}
           <p className="flex justify-between">
             <span>Contributed to group pool:</span>
             <span className="font-bold text-amber-600">-{contribution}</span>
@@ -117,7 +116,6 @@ export function Credits() {
 
           <div className="border-t border-gray-100 my-1" />
 
-          {/* Punishments Section */}
           <p className="flex justify-between">
             <span>Spent on punishing others:</span>
             <span className="font-bold text-amber-600">-{punishmentCost}</span>
@@ -129,7 +127,6 @@ export function Credits() {
 
           <div className="border-t border-gray-100 my-1" />
 
-          {/* Transfers Section */}
           <p className="flex justify-between">
             <span>Sent as transfers to others:</span>
             <span className="font-bold text-amber-600">-{transfersSent}</span>
@@ -141,7 +138,6 @@ export function Credits() {
 
           <div className="border-t border-gray-200 my-2" />
 
-          {/* Net Transactions */}
           <p className="flex justify-between text-lg font-semibold">
             <span>Net transactions:</span>
             <span>{Number.isFinite(netTransactions) ? netTransactions : 0}</span>
