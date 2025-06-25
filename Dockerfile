@@ -1,5 +1,6 @@
 FROM ghcr.io/empiricaly/empirica:latest
 
+# Set working directory
 WORKDIR /app
 
 # 1) Install server dependencies
@@ -13,20 +14,17 @@ COPY client/package.json client/package-lock.json client/
 WORKDIR /app/client
 RUN empirica npm install
 
-# 3) Copy application code
+# 3) Copy entire app source
 WORKDIR /app
 COPY . .
 
-# 4) Set environment variables
+# 4) Set environment variables (no VITE_DEV_* here)
 ENV HOST=0.0.0.0 \
     PORT=3000 \
-    VITE_DEV_SERVER_HOST=0.0.0.0 \
-    VITE_DEV_SERVER_PORT=8844 \
-    VITE_WS_HOST=0.0.0.0 \
-    NODE_ENV=development
+    NODE_ENV=production
 
-# 5) Expose both Empirica (3000) and Vite HMR (8844)
-EXPOSE 3000 8844
+# 5) Only expose the Empirica port
+EXPOSE 3000
 
-# 6) Clean any old state and start
+# 6) Clean old data and start Empirica
 CMD ["sh", "-c", "rm -rf .empirica/local/* && empirica"]
