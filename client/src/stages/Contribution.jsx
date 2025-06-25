@@ -12,9 +12,9 @@ export function Contribution() {
   function handleSubmit() {
     player.round.set("contribution", contribution);
     player.stage.set("submit", true);
+    console.log(`Player: ${player.name}, Contribution Level: ${player.round.get("contribution")}`);
   }
 
-  console.log(`Player: ${player.name}, Contribution Level: ${player.round.get("contribution")}`);
   return (
     <div className="text-center">
       <h2>You have {currentTokens} tokens.</h2>

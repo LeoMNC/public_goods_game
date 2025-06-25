@@ -9,13 +9,13 @@ export function Credits() {
 
   const [roundSummary, setRoundSummary] = useState({
     startingTokens:    10,
-    contributionCost:  0,
+    contribution:  0,
     monitoringCost:    0,
-    share:             0,
     punishmentCost:    0,
-    punishmentPenalty: 0,
     transfersSent:     0,
     transfersReceived: 0,
+    punishmentPenalty: 0,
+    share:             0,
     endingTokens:      0,
   });
 
@@ -25,30 +25,30 @@ export function Credits() {
     if (!player) return;
 
     const startingTokens     = 10;
-    const contributionCost   = player.round.get("contribution")    || 0;
-    const share              = player.round.get("share")           || 0;
+    const contribution   = player.round.get("contribution")    || 0;
     const monitoringCost     = player.round.get("monitoringCost")  || 0;
     const punishmentCost     = (player.round.get("givenPunishments") || []).length;
+    const transfersSent      = player.round.get("transferCost")   || 0;
     const punishmentPenalty  = player.round.get("punishmentPenalty") || 0;
-    const transfersSent      = player.round.get("transfersSent")   || 0;
     const transfersReceived  = player.round.get("transfersReceived") || 0;
+    const share              = player.round.get("share")           || 0;
     const endingTokens       = player.get("tokens")               || 0;
 
     console.log("ROUND SUMMARY →", {
       startingTokens,
-      contributionCost,
+      contribution,
       share,
       monitoringCost,
       punishmentCost,
       punishmentPenalty,
-      transfersSent,
+      transfersSe,
       transfersReceived,
       endingTokens,
     });
 
     setRoundSummary({
       startingTokens,
-      contributionCost,
+      contribution,
       share,
       monitoringCost,
       punishmentCost,
@@ -63,7 +63,7 @@ export function Credits() {
 
   const {
     startingTokens,
-    contributionCost,
+    contribution,
     share,
     monitoringCost,
     punishmentCost,
@@ -75,7 +75,7 @@ export function Credits() {
 
   const netTransactions =
     share
-    - contributionCost
+    - contribution
     - monitoringCost
     - punishmentCost
     - punishmentPenalty
@@ -104,7 +104,7 @@ export function Credits() {
           {/* Contributions Section */}
           <p className="flex justify-between">
             <span>Contributed to group pool:</span>
-            <span className="font-bold text-amber-600">-{contributionCost}</span>
+            <span className="font-bold text-amber-600">-{contribution}</span>
           </p>
           <p className="flex justify-between">
             <span>Spent on monitoring:</span>
