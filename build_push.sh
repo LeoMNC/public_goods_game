@@ -23,9 +23,9 @@ IMAGE="${DOCKER_USER}/public-goods-game"
 PLATFORMS="linux/amd64,linux/arm64"
 BUILDER="multi-builder"
 
-echo "[0/6] ⇒ Starting build for ${IMAGE}:${TAG} on ${PLATFORMS}"
+echo "[0/5] ⇒ Starting build for ${IMAGE}:${TAG} on ${PLATFORMS}"
 
-echo "[1/6] ⇒ Verifying Buildx builder '${BUILDER}'"
+echo "[1/5] ⇒ Verifying Buildx builder '${BUILDER}'"
 if ! docker buildx inspect "${BUILDER}" &>/dev/null; then
   echo "====> Creating builder '${BUILDER}'..."
   docker buildx create --name "${BUILDER}" --driver docker-container --use
@@ -35,27 +35,23 @@ else
   docker buildx use "${BUILDER}"
 fi
 
-echo "[2/6] ⇒ Building image"
+echo "[2/5] ⇒ Building image"
 docker buildx build \
   --builder "${BUILDER}" \
   --platform "${PLATFORMS}" \
   --tag "${IMAGE}:${TAG}" \
-  --load \
+  --push \
   --progress=plain \
-  . | grep -E '^#?\d+ .+|^\[\+ Building'
+  . | grep -E '^#?\d+ .+|^\[\+ Building' || true
 
 echo "====> Local build complete"
-
-echo "[3/6] ⇒ Pushing image to registry"
-docker push "${IMAGE}:${TAG}" | grep -i 'digest:\|pushing'
-
 echo "====> Push complete"
 
-echo "[4/6] ⇒ Retrieving digest"
+echo "[3/5] ⇒ Verifying pushed image"
+docker pull "${IMAGE}:${TAG}" >/dev/null 2>&1 && echo "====> Verified ${IMAGE}:${TAG} is accessible"
+
+echo "[4/5] ⇒ Retrieving digest"
 DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "${IMAGE}:${TAG}")
 echo "====> Image digest: ${DIGEST}"
 
-echo "[5/6] ⇒ Verifying pushed image"
-docker pull "${IMAGE}:${TAG}" >/dev/null 2>&1 && echo "====> Verified ${IMAGE}:${TAG} is accessible"
-
-echo "[6/6] ⇒ All done! ${IMAGE}:${TAG} is now available"
+echo "[5/5] ⇒ All done! ${IMAGE}:${TAG} is now available"
