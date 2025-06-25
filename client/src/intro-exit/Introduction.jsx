@@ -45,7 +45,7 @@ export function Introduction({ next }) {
             <strong>Example:</strong><br />
           </p>
           <p>
-            Suppose you are a part of a group of <strong>4 players</strong>.
+            Suppose you are a part of a group of <strong>{examplePlayerCount} players</strong>.
           </p>
           <p>
             If the group collectively contributes {groupContribution} tokens:
