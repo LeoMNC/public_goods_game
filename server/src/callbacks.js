@@ -40,7 +40,8 @@ Empirica.onGameStart(({ game }) => {
 // Round Start: initialize tokens and round properties
 Empirica.onRoundStart(({ game, round }) => {  // Added game to context
   console.log(`[RoundStart] Round started: ${round.get("name")}`);
-  game.players.forEach((p) => {
+  const players = game.players;
+  players.forEach((p) => {
     p.set("tokens", 10);
     p.round.set("monitoredPlayers", []);
     p.round.set("transfersSent", 0);
@@ -110,9 +111,9 @@ Empirica.onStageStart(({ game, round, stage }) => {  // Added game to context
 
 // Stage End
 Empirica.onStageEnded(({ game, round, stage }) => {  // Added game to context
-  const stageName = stage.get("name");
+  //const stageName = stage.get("name");
   const roundName = round.get("name");
-  console.log(`[StageEnd] Stage ended: ${stageName} in round ${roundName}`);
+  //console.log(`[StageEnd] Stage ended: ${stageName} in round ${roundName}`);
   
   const players = game.players;
   switch (stageName) {

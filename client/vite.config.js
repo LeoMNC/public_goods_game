@@ -22,11 +22,7 @@ export default defineConfig({
     open: false,
     strictPort: true,
     host: "0.0.0.0",
-    hmr: {
-      host: "localhost",
-      protocol: "ws",
-      port: 8844,
-    },
+    hmr: false,
     fs: {
       allow: [
         // search up for workspace root
