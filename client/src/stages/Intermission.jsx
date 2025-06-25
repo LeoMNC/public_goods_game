@@ -1,15 +1,17 @@
-// pages/Intermission.jsx
+// client/src/stages/Intermission.jsx
 import React from "react";
-import { usePlayer, usePlayers } from "@empirica/core/player/classic/react";
+import { usePlayer, usePlayers, useRound, useStage } from "@empirica/core/player/classic/react";
 import { Scoreboard } from "../components/Scoreboard";
 
 export function Intermission() {
   const player = usePlayer();
   const players = usePlayers();
+  const round = useRound();
+  const stage = useStage();
   const contributionMultiplier = 2;
 
   const contribution = player.round.get("contribution") || 0;
-  const share = round.get("share") || 0;
+  const share = stage.round.get("share") || 0;
   const totalContribution = players.reduce((sum, p) => sum + (p.round.get("contribution") || 0), 0);
   const totalPool = totalContribution * contributionMultiplier;
   const meanContribution = totalContribution / players.length;
