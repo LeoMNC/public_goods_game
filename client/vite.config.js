@@ -1,3 +1,4 @@
+// client/vite.config.js
 import react from "@vitejs/plugin-react";
 import builtins from "rollup-plugin-polyfill-node";
 import { defineConfig, searchForWorkspaceRoot } from "vite";

@@ -10,9 +10,13 @@ export function Contribution() {
   const [contribution, setContribution] = useState(player.round.get("contribution") || 0);
 
   function handleSubmit() {
+    // write your state value out
     player.round.set("contribution", contribution);
     player.stage.set("submit", true);
-    console.log(`Player: ${player.name}, Contribution Level: ${player.round.get("contribution")}`);
+
+    const name = player.get("name") || "Player Unknown";
+    // use the outer `contribution` state directly
+    console.log(`${name} contributed ${contribution} tokens.`);
   }
 
   return (

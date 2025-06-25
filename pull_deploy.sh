@@ -33,7 +33,7 @@ docker pull "${IMAGE}"
 
 # 5/6 ⇒ RUN THE CONTAINER
 echo "[5/6] ⇒ Starting container pgg..."
-docker run -d \
+docker run \
   --name pgg \
   -p 3000:3000 \
   -p 8844:8844 \
