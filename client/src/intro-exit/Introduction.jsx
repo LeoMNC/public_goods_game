@@ -1,6 +1,6 @@
 // client/src/intro-exit/Introduction.jsx
 import React from "react";
-import { usePlayer, usePlayers, useGame } from "@empirica/core/player/classic/react";
+import { usePlayer, useGame } from "@empirica/core/player/classic/react";
 import { Button } from "../components/Button";
 import stagesImg from "../stages/Stages.png";
 
@@ -9,13 +9,12 @@ export function Introduction({ next }) {
   if (!player) return <div>Loading players...</div>;
 
   const game = useGame();
-  console.log(`game: ${game}`);
   const treatment = game.get("treatment") || {};
-  console.log("treatment:", treatment);
+  console.log("treatment: ", treatment);
 
   const pCount = treatment.playerCount;
   console.log(`Player count: ${pCount}`);
-  const playerCount = Number.isFinite(+pCount) ? +pCount : 1;
+  const playerCount = pCount || 1;
   const examplePlayerCount = playerCount || 4; // Example for illustration purposes
   const groupContribution = 12; // total contribution from the whole group
   const CONTRIBUTION_MULTIPLIER = 2; // the pool is doubled

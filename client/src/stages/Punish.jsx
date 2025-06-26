@@ -12,10 +12,10 @@ export function usePunishment() {
   const [punishedIds, setPunishedIds] = useState([]);
   const [error, setError] = useState(null);
 
-  // number of targets selected
   const cost = punishedIds.length;
-  // total penalty inflicted on targets
-  const penalty = cost * PUNISH_MULTIPLIER;
+  const penaltyMap = Object.fromEntries(
+    punishedIds.map((id) => [id, PUNISH_MULTIPLIER])
+  );
 
   const togglePunish = useCallback((playerId) => {
     setError(null);
@@ -30,32 +30,35 @@ export function usePunishment() {
     if (!currentPlayer) return;
 
     const tokens = currentPlayer.get("tokens") || 0;
-    // Ensure punisher can pay the base cost only
     if (tokens < cost) {
       setError(`Not enough tokens. You have ${tokens}, need ${cost}.`);
       return;
     }
 
-    // 1) Record the raw array of punished IDs
+    // Store who was punished and by how much
     currentPlayer.round.set("givenPunishments", punishedIds);
-    // 2) Record the punishment cost on this player
     currentPlayer.round.set("punishmentCost", cost);
-    // 3) Record the eventual total penalty inflicted
-    currentPlayer.round.set("punishmentPenalty", penalty);
+    currentPlayer.round.set("penaltyMap", penaltyMap);
 
-    // 4) Advance to next stage so server handles punish logic
     currentPlayer.stage.set("submit", true);
 
-    // 5) Reset local state & errors for next usage
     setPunishedIds([]);
     setError(null);
-  }, [currentPlayer, punishedIds, cost, penalty]);
+  }, [currentPlayer, punishedIds, cost, penaltyMap]);
 
-  return { players, punishedIds, error, cost, penalty, togglePunish, submitPunishment };
+  return {
+    players,
+    punishedIds,
+    error,
+    cost,
+    penaltyMap,
+    togglePunish,
+    submitPunishment,
+  };
 }
 
 function PunishmentComponent() {
-  const { players, punishedIds, error, cost, penalty, togglePunish, submitPunishment } =
+  const { players, punishedIds, error, cost, penaltyMap, togglePunish, submitPunishment } =
     usePunishment();
   const currentPlayer = usePlayer();
 
@@ -81,7 +84,7 @@ function PunishmentComponent() {
                 className="mr-3"
               />
               <label htmlFor={`punish-${p.id}`}> 
-                {p.get("name")} ({p.id})
+                {p.get("name")} 
               </label>
             </li>
           ))}
@@ -90,9 +93,6 @@ function PunishmentComponent() {
       <div className="mt-4">
         <p>
           <strong>Cost:</strong> {cost} token{cost !== 1 && "s"}
-        </p>
-        <p>
-          <strong>Penalty inflicted:</strong> {penalty} total
         </p>
         {error && <p className="text-red-600 font-bold mt-2">{error}</p>}
       </div>
@@ -112,7 +112,7 @@ export function Punish() {
   return (
     <div className="mt-5 px-8 py-6 bg-white rounded-lg shadow-lg">
       <p className="mb-4">
-        <strong>4.2.</strong> Pay 1 token per punishment. Punished players lose 5 tokens per hit before the next round.
+        Select players to punish. For each player punished, you will lose 1 coin and they will lose 5 coins.
       </p>
       <div className="flex justify-center mt-8">
         <div className="w-full max-w-md">

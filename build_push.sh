@@ -70,9 +70,17 @@ fi
 rm "$BUILD_LOG"
 
 echo "[6/6] ⇒ Verifying & reporting"
-docker pull "${IMAGE}:${TAG}" >/dev/null 2>&1 \
-  && echo "====> Verified ${IMAGE}:${TAG}" \
-  || { echo "!!! VERIFY FAILED: image not found !!!" >&2; exit 1; }
+
+# Check if the image digest is available locally in build output metadata
+DIGEST=$(docker buildx imagetools inspect "${IMAGE}:${TAG}" --format '{{.Manifest.Digest}}' 2>/dev/null)
+
+if [[ -n "$DIGEST" ]]; then
+  echo "====> Successfully pushed: ${IMAGE}@${DIGEST}"
+  echo "====> Image tag: ${IMAGE}:${TAG}"
+else
+  echo "!!! VERIFY FAILED: digest not found via imagetools inspect !!!" >&2
+  exit 1
+fi
 
 DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "${IMAGE}:${TAG}")
 echo "====> Image digest: ${DIGEST}"

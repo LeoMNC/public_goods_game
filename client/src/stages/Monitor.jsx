@@ -8,13 +8,12 @@ export function Monitor() {
   const player = usePlayer();
   const players = usePlayers() || [];
   const currentTokens = player.get("tokens") || 0;
-  console.log(`Current tokens for player ${player.id}: ${currentTokens}`);
 
   // Load previously‑selected players (or empty)
   const [selectedPlayers, setSelectedPlayers] = useState(
     player.round.get("monitoredPlayers") || []
   );
-
+  
   // Whenever the player object or list changes, re‑init selection
   useEffect(() => {
     if (!player) return;
@@ -35,11 +34,13 @@ export function Monitor() {
 
   const handleSubmit = useCallback(() => {
     console.log("Submitting monitor selection:", { selectedPlayers, cost });
+    //console.log(`Current tokens for player ${player.get("name")}: ${currentTokens}`);
     // Save to round store
     player.round.set("monitoredPlayers", selectedPlayers);
     player.round.set("monitoringCost", cost);
     // Advance stage
     player.stage.set("submit", true);
+    console.log()
     // Clear for next round
     setSelectedPlayers([]);
   }, [player, selectedPlayers, cost]);

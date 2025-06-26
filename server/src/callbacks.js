@@ -3,6 +3,8 @@ import { ClassicListenersCollector } from "@empirica/core/admin/classic";
 export const Empirica = new ClassicListenersCollector();
 const PUNISH_MULTIPLIER = 5;
 const CONTRIBUTION_MULTIPLIER = 2;
+import { useRound, usePlayers } from "@empirica/core/player/classic/react";
+
 
 // Game Start
 Empirica.onGameStart(({ game }) => {
@@ -59,14 +61,14 @@ Empirica.onRoundStart(({ round }) => {
 // Stage Start
 Empirica.onStageStart(({ stage }) => {  
   console.log(`[StageStart] Stage started: ${stage.get("name")}`);
-  
   if (stage.get("name") !== "credits") return;
   
+  const round = stage.round;
   console.log("[StageStart] Processing credits stage");
-  const players = stage.round.currentGame.players;  
+  const players = round.currentGame.players;  
   // 1) Public‐goods returns
   players.forEach(p => {
-    const share = stage.round.get("playerShare") || 0;
+    const share = round.get("share") || 0;
     const currentTokens = p.get("tokens") || 0;
     p.set("tokens", currentTokens + share);
     console.log(`[StageStart] Player ${p.id} received share: ${share}, new tokens: ${currentTokens + share}`);
@@ -81,29 +83,15 @@ Empirica.onStageStart(({ stage }) => {
   });
 
   // 3) Punishment penalties (for targets)
-  // Build a map of how many times each player was hit
-  const punishCount = {};
-  players.forEach((p) => {
-    (p.round.get("givenPunishments") || []).forEach((targetId) => {
-      punishCount[targetId] = (punishCount[targetId] || 0) + 1;
-    });
-  });
-
-  // Apply penalties and record for UI / later analysis
-  players.forEach((p) => {
-    const times = punishCount[p.id] || 0;
-    const penalty = times * PUNISH_MULTIPLIER;
-
-    p.round.set("punishmentReceived", times);
-    p.round.set("punishmentPenalty", penalty);
-
-    const currentTokens = p.get("tokens") || 0;
-    const newTokens = Math.max(0, currentTokens - penalty);
-    p.set("tokens", newTokens);
-    
-    console.log(
-      `[StageStart] Player ${p.id} punished ${times} time(s), penalty: ${penalty}, new tokens: ${newTokens}`
-    );
+  players.forEach(p => {
+    const otherPlayers = players;
+    otherPlayers.forEach(op => {
+      const penaltyMap = op.round.get("penaltyMap") || {};
+      const punishment = penaltyMap[p.id] || 0;
+      p.round.set('punishmentPenalty',punishment)
+      const currentTokens = p.get("tokens") || 0;
+      p.set("tokens", currentTokens - punishment)
+    })
   });
 
   console.log("[StageStart] Applied public‐goods returns, transfers, and punishments.");
@@ -112,10 +100,10 @@ Empirica.onStageStart(({ stage }) => {
 // Stage End
 Empirica.onStageEnded(({ stage }) => { 
   const stageName = stage.get("name");
-  // const roundName = round.get("name");
-  //console.log(`[StageEnd] Stage ended: ${stageName} in round ${roundName}`);
-
-  const players = stage.round.currentGame.players;
+  const round = stage.round;
+  const roundName = round.get("name");
+  console.log(`[StageEnd] Stage ended: ${stageName} in round ${roundName}`);
+  const players = round.currentGame.players;
   switch (stageName) {
     case "contribution":
       console.log("[StageEnd] Processing contributions...");
@@ -139,11 +127,11 @@ Empirica.onStageEnded(({ stage }) => {
         (sum, p) => sum + (p.round.get("contribution") || 0), 
         0
       );
-      stage.round.set("totalContribution", roundContribution);
+      round.set("totalContribution", roundContribution);
       
       const roundPool = roundContribution * CONTRIBUTION_MULTIPLIER;
       const share = players.length > 0 ? roundPool / players.length : 0;
-      stage.round.set("playerShare", share);
+      round.set("share", share);
       
       console.log(`[StageEnd] Total round contribution: ${roundContribution}`);
       console.log(`[StageEnd] Multiplied pool (x${CONTRIBUTION_MULTIPLIER}): ${roundPool}`);
@@ -154,11 +142,10 @@ Empirica.onStageEnded(({ stage }) => {
       console.log("[StageEnd] Processing monitoring costs...");
       players.forEach(p => {
         const monitoredPlayers = p.round.get("monitoredPlayers") || [];
-        const monitoringCost = monitoredPlayers.length;
-        
+        const monitoringCost = p.round.get("monitoringCost");
+
         const currentTokens = p.get("tokens") || 0;
         const postMonitoringTokens = currentTokens - monitoringCost;
-        p.round.set("monitoringCost", monitoringCost);
         p.set("tokens", Math.max(0, postMonitoringTokens));
         
         console.log(
@@ -196,7 +183,7 @@ Empirica.onStageEnded(({ stage }) => {
         p.round.set("punishmentCost", punishCost);
         
         console.log(
-          `[StageEnd] Player ${p.id} paid ${punishCost} token${punishCost !== 1 ? "s" : ""} for punishing, ` +
+          `[StageEnd] Player ${p.get("name")} paid ${punishCost} token${punishCost !== 1 ? "s" : ""} for punishing, ` +
           `new balance: ${newTokens}`
         );
       });

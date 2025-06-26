@@ -28,20 +28,20 @@ export function Credits() {
     const contribution      = player.round.get("contribution")      || 0;
     const monitoringCost    = player.round.get("monitoringCost")    || 0;
     const punishmentCost    = player.round.get("punishmentCost")    || 0;
-    const punishmentPenalty = player.round.get("punishmentPenalty") || 0;
     const transfersSent     = player.round.get("transfersSent")     || 0;
-    const transfersReceived = player.round.get("transfersReceived") || 0;
     const share             = round.get("share")                    || 0;
-    const endingTokens      = player.get("tokens")                || 0;
+    const punishmentPenalty = player.round.get("punishmentPenalty") || 0;
+    const transfersReceived = player.round.get("transfersReceived") || 0;
+    const endingTokens      = player.get("tokens")                  || 0;
 
     console.log("ROUND SUMMARY →", {
       startingTokens,
       contribution,
-      share,
       monitoringCost,
       punishmentCost,
-      punishmentPenalty,
       transfersSent,
+      share,
+      punishmentPenalty,
       transfersReceived,
       endingTokens,
     });
@@ -49,11 +49,11 @@ export function Credits() {
     setRoundSummary({
       startingTokens,
       contribution,
-      share,
       monitoringCost,
       punishmentCost,
-      punishmentPenalty,
       transfersSent,
+      share,
+      punishmentPenalty,
       transfersReceived,
       endingTokens,
     });
@@ -64,22 +64,22 @@ export function Credits() {
   const {
     startingTokens,
     contribution,
-    share,
     monitoringCost,
     punishmentCost,
-    punishmentPenalty,
     transfersSent,
+    share,
+    punishmentPenalty,
     transfersReceived,
     endingTokens,
   } = roundSummary;
 
-  const netTransactions =
-    share
+  const netTransactions = 0
     - contribution
     - monitoringCost
     - punishmentCost
-    - punishmentPenalty
     - transfersSent
+    + share
+    - punishmentPenalty
     + transfersReceived;
 
   return (
@@ -109,10 +109,6 @@ export function Credits() {
             <span>Spent on monitoring:</span>
             <span className="font-bold text-amber-600">-{monitoringCost}</span>
           </p>
-          <p className="flex justify-between">
-            <span>Share from group pool:</span>
-            <span className="font-bold text-green-600">+{share}</span>
-          </p>
 
           <div className="border-t border-gray-100 my-1" />
 
@@ -121,15 +117,19 @@ export function Credits() {
             <span className="font-bold text-amber-600">-{punishmentCost}</span>
           </p>
           <p className="flex justify-between">
-            <span>Lost from being punished:</span>
-            <span className="font-bold text-red-600">-{punishmentPenalty}</span>
+            <span>Sent as transfers to others:</span>
+            <span className="font-bold text-amber-600">-{transfersSent}</span>
           </p>
 
           <div className="border-t border-gray-100 my-1" />
-
+          
           <p className="flex justify-between">
-            <span>Sent as transfers to others:</span>
-            <span className="font-bold text-amber-600">-{transfersSent}</span>
+            <span>Share from group pool:</span>
+            <span className="font-bold text-green-600">+{share}</span>
+          </p>
+          <p className="flex justify-between">
+            <span>Lost from being punished:</span>
+            <span className="font-bold text-red-600">-{punishmentPenalty}</span>
           </p>
           <p className="flex justify-between">
             <span>Received as transfers from others:</span>

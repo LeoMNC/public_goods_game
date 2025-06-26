@@ -15,7 +15,7 @@ export function Intermission() {
   const totalContribution = players.reduce((sum, p) => sum + (p.round.get("contribution") || 0), 0);
   const totalPool = totalContribution * contributionMultiplier;
   const meanContribution = totalContribution / players.length;
-  const finalTokens = player.get("tokens")?.toFixed(2) ?? "–";
+  const finalTokens = player.get("tokens");
 
   // This is where the issue is - we need to get the monitored players from the current round
   const monitoredIds = player.round.get("monitoredPlayers") || [];
@@ -43,7 +43,7 @@ export function Intermission() {
           After a {contributionMultiplier}x multiplier, the pool became <strong>{totalPool.toFixed(2)} tokens</strong>. This was divided between all {players.length} players.
         </p>
         <p>
-          So, each player (including you) received <strong>{share.toFixed(2)} tokens</strong>.
+          So, each player (including you) will receive <strong>{share.toFixed(2)} tokens</strong> at the end of the round.
         </p>
         {monitoringCost > 0 ? (
           <p>
