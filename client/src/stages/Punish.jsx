@@ -40,11 +40,12 @@ export function usePunishment() {
     currentPlayer.round.set("punishmentCost", cost);
     currentPlayer.round.set("penaltyMap", penaltyMap);
 
+
     currentPlayer.stage.set("submit", true);
 
     setPunishedIds([]);
     setError(null);
-  }, [currentPlayer, punishedIds, cost, penaltyMap]);
+  }, [currentPlayer, punishedIds, cost, penaltyMap, players]);
 
   return {
     players,

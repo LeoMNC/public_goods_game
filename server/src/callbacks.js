@@ -82,16 +82,33 @@ Empirica.onStageStart(({ stage }) => {
     console.log(`[StageStart] Player ${p.id} received transfers: ${rec}, new tokens: ${currentTokens + rec}`);
   });
 
-  // 3) Punishment penalties (for targets)
+  // 3) Punishment penalties (for targets)  - FIXED
+  // Create a map to accumulate total punishments per player
+  const punishmentTotals = {};
   players.forEach(p => {
-    const otherPlayers = players;
-    otherPlayers.forEach(op => {
-      const penaltyMap = op.round.get("penaltyMap") || {};
-      const punishment = penaltyMap[p.id] || 0;
-      p.round.set('punishmentPenalty',punishment)
+    punishmentTotals[p.id] = 0;
+  });
+  
+  // Accumulate punishments from all players
+  players.forEach(punisher => {
+    const penaltyMap = punisher.round.get("penaltyMap") || {};
+    for (const [targetId, amount] of Object.entries(penaltyMap)) {
+      if (punishmentTotals[targetId] !== undefined) {
+        punishmentTotals[targetId] += amount;
+      }
+    }
+  });
+  
+  // Apply punishments to targets
+  players.forEach(p => {
+    const punishment = punishmentTotals[p.id] || 0;
+    p.round.set("punishmentPenalty", punishment);
+    
+    if (punishment > 0) {
       const currentTokens = p.get("tokens") || 0;
-      p.set("tokens", currentTokens - punishment)
-    })
+      p.set("tokens", Math.max(0, currentTokens - punishment));
+      console.log(`[StageStart] Player ${p.id} punished: -${punishment}, new tokens: ${currentTokens - punishment}`);
+    }
   });
 
   console.log("[StageStart] Applied public‐goods returns, transfers, and punishments.");
@@ -180,7 +197,7 @@ Empirica.onStageEnded(({ stage }) => {
         const currentTokens = p.get("tokens") || 0;
         const newTokens = Math.max(0, currentTokens - punishCost);
         p.set("tokens", newTokens);
-        p.round.set("punishmentCost", punishCost);
+        p.round.set("punishCost", punishCost);
         
         console.log(
           `[StageEnd] Player ${p.get("name")} paid ${punishCost} token${punishCost !== 1 ? "s" : ""} for punishing, ` +

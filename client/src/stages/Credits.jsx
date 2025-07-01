@@ -11,7 +11,7 @@ export function Credits() {
     startingTokens:    10,
     contribution:      0,
     monitoringCost:    0,
-    punishmentCost:    0,
+    punishCost:        0,
     transfersSent:     0,
     transfersReceived: 0,
     punishmentPenalty: 0,
@@ -27,7 +27,7 @@ export function Credits() {
     const startingTokens    = 10;
     const contribution      = player.round.get("contribution")      || 0;
     const monitoringCost    = player.round.get("monitoringCost")    || 0;
-    const punishmentCost    = player.round.get("punishmentCost")    || 0;
+    const punishCost        = player.round.get("punishCost")        || 0;
     const transfersSent     = player.round.get("transfersSent")     || 0;
     const share             = round.get("share")                    || 0;
     const punishmentPenalty = player.round.get("punishmentPenalty") || 0;
@@ -38,7 +38,7 @@ export function Credits() {
       startingTokens,
       contribution,
       monitoringCost,
-      punishmentCost,
+      punishCost,
       transfersSent,
       share,
       punishmentPenalty,
@@ -50,7 +50,7 @@ export function Credits() {
       startingTokens,
       contribution,
       monitoringCost,
-      punishmentCost,
+      punishCost,
       transfersSent,
       share,
       punishmentPenalty,
@@ -65,7 +65,7 @@ export function Credits() {
     startingTokens,
     contribution,
     monitoringCost,
-    punishmentCost,
+    punishCost,
     transfersSent,
     share,
     punishmentPenalty,
@@ -76,7 +76,7 @@ export function Credits() {
   const netTransactions = 0
     - contribution
     - monitoringCost
-    - punishmentCost
+    - punishCost
     - transfersSent
     + share
     - punishmentPenalty
@@ -114,7 +114,7 @@ export function Credits() {
 
           <p className="flex justify-between">
             <span>Spent on punishing others:</span>
-            <span className="font-bold text-amber-600">-{punishmentCost}</span>
+            <span className="font-bold text-amber-600">-{punishCost}</span>
           </p>
           <p className="flex justify-between">
             <span>Sent as transfers to others:</span>
