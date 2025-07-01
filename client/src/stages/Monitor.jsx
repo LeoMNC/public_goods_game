@@ -32,18 +32,24 @@ export function Monitor() {
     []
   );
 
-  const handleSubmit = useCallback(() => {
-    console.log("Submitting monitor selection:", { selectedPlayers, cost });
-    //console.log(`Current tokens for player ${player.get("name")}: ${currentTokens}`);
-    // Save to round store
-    player.round.set("monitoredPlayers", selectedPlayers);
-    player.round.set("monitoringCost", cost);
-    // Advance stage
-    player.stage.set("submit", true);
-    console.log()
-    // Clear for next round
-    setSelectedPlayers([]);
-  }, [player, selectedPlayers, cost]);
+const handleSubmit = useCallback(() => {
+  if (cost > currentTokens) {
+    console.log(`Player ${player.id} tried to monitor with insufficient tokens`);
+    return;
+  }
+  
+  console.log("Submitting monitor selection:", { selectedPlayers, cost });
+  
+  // Set both the list of monitored players AND the cost
+  player.round.set("monitoredPlayers", selectedPlayers);
+  player.round.set("monitoringCost", cost);  // Explicitly set the cost
+  
+  // Deduct tokens immediately
+  player.set("tokens", currentTokens - cost);
+  
+  player.stage.set("submit", true);
+  setSelectedPlayers([]);
+}, [player, selectedPlayers, cost, currentTokens]);
 
   const otherPlayers = players.filter((p) => p.id !== player.id);
 

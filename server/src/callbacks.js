@@ -155,34 +155,32 @@ Empirica.onStageEnded(({ stage }) => {
       console.log(`[StageEnd] Each player will receive ${share} from the pool`);
       break;
 
-    case "monitor":
-      console.log("[StageEnd] Processing monitoring costs...");
-      players.forEach(p => {
-        const monitoredPlayers = p.round.get("monitoredPlayers") || [];
-        const monitoringCost = p.round.get("monitoringCost");
+case "monitor":
+  console.log("[StageEnd] Processing monitoring...");
+  players.forEach(p => {
+    const monitoredPlayers = p.round.get("monitoredPlayers") || [];
+    // Get the cost that was already set client-side
+    const monitoringCost = p.round.get("monitoringCost") || 0;
+    
+    console.log(
+      `[StageEnd] Player ${p.id} monitored ${monitoredPlayers.length} players, cost: ${monitoringCost}`
+    );
 
-        const currentTokens = p.get("tokens") || 0;
-        const postMonitoringTokens = currentTokens - monitoringCost;
-        p.set("tokens", Math.max(0, postMonitoringTokens));
-        
-        console.log(
-          `[StageEnd] Player ${p.id} monitoring cost: ${monitoringCost}, ` +
-          `new balance: ${postMonitoringTokens}`
-        );
-
-        // Store monitoring results
-        const monitoringResults = monitoredPlayers.map(monitoredId => {
-          const monitoredPlayer = players.find(mp => mp.id === monitoredId);
-          return monitoredPlayer ? {
-            id: monitoredPlayer.id,
-            contribution: monitoredPlayer.round.get("contribution") || 0,
-            kept: monitoredPlayer.round.get("kept") || 0
-          } : null;
-        }).filter(Boolean);
-        
-        p.round.set("monitoringResults", monitoringResults);
-      });
-      break;
+    // Store monitoring results
+    const monitoringResults = monitoredPlayers.map(monitoredId => {
+      const monitoredPlayer = players.find(mp => mp.id === monitoredId);
+      return monitoredPlayer ? {
+        id: monitoredPlayer.id,
+        contribution: monitoredPlayer.round.get("contribution") || 0,
+        kept: monitoredPlayer.round.get("kept") || 0
+      } : null;
+    }).filter(Boolean);
+    
+    p.round.set("monitoringResults", monitoringResults);
+    // Ensure cost is preserved
+    p.round.set("monitoringCost", monitoringCost);
+  });
+  break;
 
     case "intermission":
       console.log("[StageEnd] Intermission stage completed");
