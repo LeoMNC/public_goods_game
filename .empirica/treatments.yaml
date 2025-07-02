@@ -25,6 +25,13 @@ treatments:
       numRounds: 3
       chatEnabled: false
 
+  - name: _testing_3p
+    desc: 3 players, 3 rounds, no chat
+    factors:
+      playerCount: 3
+      numRounds: 3
+      chatEnabled: false
+
   - name: 3_players_chat
     desc: 3 players with chat enabled
     factors:
