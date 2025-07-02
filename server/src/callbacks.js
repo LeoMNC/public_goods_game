@@ -190,7 +190,8 @@ case "monitor":
       console.log("[StageEnd] Processing punishment costs...");
       players.forEach((p) => {
         const given = p.round.get("givenPunishments") || [];
-        const punishCost = given.length;
+        // Get the cost that was already set client-side
+        const punishCost = p.round.get("punishmentCost") || given.length;
         
         const currentTokens = p.get("tokens") || 0;
         const newTokens = Math.max(0, currentTokens - punishCost);
