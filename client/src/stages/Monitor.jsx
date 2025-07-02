@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { usePlayer, usePlayers } from "@empirica/core/player/classic/react";
 import { Scoreboard } from "../components/Scoreboard";
-import { Button } from "../components/Button";
 
 export function Monitor() {
   const player = usePlayer();
@@ -164,13 +163,17 @@ const handleSubmit = useCallback(() => {
 
           <div className="mt-4">
             {/* pass handleClick, not onClick */}
-            <Button
-              primary
-              handleClick={handleSubmit}
-              disabled={disabled}
-            >
-              Submit
-            </Button>
+            <button
+            onClick={handleSubmit}
+            disabled={disabled}
+            className={`mt-6 px-5 py-2 rounded-xl text-white transition ${
+              disabled 
+                ? "bg-blue-300 cursor-not-allowed opacity-50" 
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
+          >
+            Submit
+          </button>
           </div>
         </>
       ) : (
