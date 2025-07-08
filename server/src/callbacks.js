@@ -262,3 +262,21 @@ Empirica.onGameEnded(({ game }) => {
     );
   });
 });
+
+// **Add this at the very end of the file**
+Empirica.on("init", ({ server }) => {
+  // For any request not handled by Empirica's API or sockets, serve React
+  server.app.get("*", (req, res, next) => {
+    // Skip Empirica GraphQL endpoint and socket.io
+    if (
+      req.path.startsWith("/query") ||
+      req.path.startsWith("/socket.io")
+    ) {
+      return next();
+    }
+    // Serve the built React app
+    res.sendFile(
+      path.resolve(__dirname, "../../client/build/index.html")
+    );
+  });
+});

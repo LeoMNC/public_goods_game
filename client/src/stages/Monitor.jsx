@@ -54,9 +54,6 @@ const handleSubmit = useCallback(() => {
 
   return (
     <div className="text-center mt-3 sm:mt-5 p-20">
-      <h2 className="text-2xl font-bold">
-        You have {currentTokens} token{currentTokens !== 1 && "s"}
-      </h2>
 
       <Scoreboard />
 
@@ -89,9 +86,8 @@ const handleSubmit = useCallback(() => {
             </svg>
           </div>
           <p className="text-left">
-            You can pay <span className="font-bold">1 token per player</span> to
-            monitor them. For each you select, you’ll see their last‐round contribution
-            at the start of the next round.
+            Spend <strong>1 token per player</strong> to reveal how much they contributed this round. 
+            You can use this intel to reward team players... or punish free-riders. 
           </p>
         </div>
       </div>
@@ -101,7 +97,7 @@ const handleSubmit = useCallback(() => {
           <div className="mt-6">
             <h1 className="text-xl font-bold mb-2">Select players to monitor</h1>
             <p className="text-gray-600 mb-4">
-              Each player costs 1 token to monitor. You can select any number
+              Each selection costs 1 token. 
               (including zero).
             </p>
             <div className="flex flex-col space-y-2 max-w-md mx-auto">

@@ -1,3 +1,5 @@
+// client/src/NameStep.jsx
+
 import React, { useState } from "react";
 import { usePlayer } from "@empirica/core/player/classic/react";
 import { Button } from "../components/Button";
@@ -12,53 +14,52 @@ export function NameStep({ next }) {
   const handleSubmit = () => {
     if (isValidName) {
       player.set("name", name.trim());
-      next(); // Proceed to next intro step
+      next();
     } else {
       setError("Username must be more than one character");
     }
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      if (isValidName) {
-      handleSubmit();
-      } else {
-        setError("Username must be more than one character");
-    }
-    }
+    if (e.key === "Enter") handleSubmit();
   };
 
   const handleChange = (e) => {
     setName(e.target.value);
-    if (error) setError(""); // Clear error when user types
+    if (error) setError("");
   };
 
   return (
-    <div className="mt-3 sm:mt-5 p-20">
-      <h3 className="text-lg leading-6 font-medium text-gray-900">
-        What's your name?
-      </h3>
-      <input
-        type="text"
-        className={`mt-4 mb-2 p-2 border rounded w-full max-w-md ${
-          error ? "border-red-500" : ""
-        }`}
-        value={name}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        placeholder="Please enter your name"
-      />
-      {/* Error message container with fixed height */}
-      <div className="h-6 mb-4">
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+          What's your name?
+        </h2>
+        <input
+          type="text"
+          className={`w-full px-4 py-2 border ${
+            error ? "border-red-500" : "border-gray-300"
+          } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
+          value={name}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Enter your name"
+        />
+        <div className="h-6 mt-1 mb-4">
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+        </div>
+        <Button
+          handleClick={handleSubmit}
+          disabled={!isValidName}
+          className={`w-full py-2 rounded-lg ${
+            isValidName
+              ? "bg-blue-600 text-white hover:bg-blue-700 transition"
+              : "bg-blue-300 text-white cursor-not-allowed"
+          }`}
+        >
+          <p>Continue</p>
+        </Button>
       </div>
-      <Button
-        handleClick={handleSubmit}
-        disabled={!isValidName}
-        className={!isValidName ? "opacity-50 cursor-not-allowed" : ""}
-      >
-        <p>Continue</p>
-      </Button>
     </div>
   );
 }

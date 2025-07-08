@@ -2,10 +2,15 @@
 import React from "react";
 import { usePlayer, useGame } from "@empirica/core/player/classic/react";
 import { Button } from "../components/Button";
-import stagesImg from "../stages/Stages.png";
+import stagesImg from "../stages/RoundStructure.png";
+import { useEffect } from "react";
 
 export function Introduction({ next }) {
   const player = usePlayer();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+   }, []);
+
   if (!player) return <div>Loading players...</div>;
 
   const game = useGame();
@@ -29,11 +34,13 @@ export function Introduction({ next }) {
         <p> 
           Welcome! You are now part of a group of {playerCount} players participating in the <strong>Games and Strategic Interaction</strong> study.
         </p>
-        <p>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 shadow-sm space-y-2">
+          <p>
           This game runs for <b>several rounds</b>, each of which has <b>6 stages</b>. In each round, every player starts with <strong>10 tokens</strong> and can spend them in various ways during the different stages.
           At the end of each round, you may gain or lose tokens based on your actions and those of other players. Whatever is left over will be converted into points and you will receive a summary of your performance.
-          At the end of the game, you can spend your points on prizes like stickers, candy, or extra Sona credits. Try to get as many points as possible to maximize your rewards!
-        </p>
+          At the end of the game, you can spend your points on prizes like stickers, candy, or extra Sona credits. <strong>Try to get as many points as possible to maximize your rewards!</strong>
+          </p>
+        </div>
         
         <p>In each round, you’ll decide how to use your tokens:</p>
           <ul className="list-disc ml-6 mt-1">
@@ -42,21 +49,28 @@ export function Introduction({ next }) {
             <li><strong>Save</strong> them in your personal account.</li>
           </ul>
 
-        <div className="space-y-2 mt-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 shadow-sm space-y-2">
           <p>
             <strong>Example:</strong><br />
           </p>
           <p>
-            Suppose you are a part of a group of <strong>{examplePlayerCount} players</strong>.
+            You're in a group of <strong>{examplePlayerCount} players</strong>.
           </p>
           <p>
-            If the group collectively contributes {groupContribution} tokens:
-            <br />
-            {groupContribution} × {CONTRIBUTION_MULTIPLIER} = {doubledPool} tokens in the shared pool<br />
-            There are then opportunities for monitoring, punishment, and reward.<br />
-            At the end of the round, players receive a return from the group investment, and players receive punishment and rewards.<br />
-            {doubledPool} ÷ {examplePlayerCount} = {individualShare} tokens per player. Each player receives <strong>{individualShare} tokens from the pool</strong><br />
-            The final token balance is then converted into points, and tokens reset for the next round.
+            Together, the group contributes {groupContribution} tokens to the shared pool.
+          </p>
+          <p>
+            The pool gets <strong>doubled</strong>: {groupContribution} × {CONTRIBUTION_MULTIPLIER} = <strong>{doubledPool} tokens</strong>.
+          </p>
+          <p>
+            That's <strong>{individualShare} tokens</strong> per player:<br />
+            {doubledPool} ÷ {examplePlayerCount} = {individualShare}
+          </p>
+          <p>
+            There are then opportunities for <strong>monitoring</strong>, <strong>punishment</strong>, and <strong>rewards</strong>.
+          </p>
+          <p>
+            At the end of the round, your final balance becomes points, and tokens reset for the next round.
           </p>
         </div>
         <div className="my-8">
@@ -64,34 +78,12 @@ export function Introduction({ next }) {
           <img
             src={stagesImg}
             alt="Game stages: Contribution, Monitoring, Intermission, Punishment, Transfers, Credits"
-            className="w-full rounded-md shadow-md"
+            className="w-full max-w-5xl mx-auto rounded-md shadow-md"
           />
         </div>
         <div className="space-y-2 mt-6">
-          <h3 className="text-xl font-semibold text-gray-900">Round Structure</h3>
-          <ol className="space-y-2 pl-4 border-l-2 border-gray-300">
-            <li>
-              <strong>Stage 1: Contribution</strong> – Choose how many tokens to contribute to the pool.
-            </li>
-            <li>
-              <strong>Stage 2: Monitoring</strong> – Spend 1 token per player to see their contribution.
-            </li>
-            <li>
-              <strong>Stage 3: Intermission</strong> – View results from monitoring and pool earnings.
-            </li>
-            <li>
-              <strong>Stage 4: Punishment</strong> – Spend 1 token to punish a player. They lose 5 tokens.
-            </li>
-            <li>
-              <strong>Stage 5: Transfers</strong> – Send tokens to reward another player.
-            </li>
-            <li>
-              <strong>Stage 6: Credits</strong> – Review your round summary: contributions, gains, & losses.
-            </li>
-          </ol>
-          
           <p className="text-base text-gray-900 mt-4">
-            <strong>Note:</strong> All players must complete each stage before moving on. After Stage 6, the round ends and everyone starts the next round with <strong>10 fresh tokens</strong>. This cycle repeats until all 5 rounds are complete, after which the game ends.
+            <strong>Note:</strong> All players must complete each stage before moving on. <strong>After Stage 6</strong>, the round ends and everyone starts the next round with <strong>10 fresh tokens</strong>. This cycle repeats until all <strong>5 rounds</strong> are complete, after which the game ends.
           </p>
         </div>
 
@@ -101,7 +93,7 @@ export function Introduction({ next }) {
       </div>
 
       <div className="flex justify-end pt-6">
-        <Button handleClick={next} autoFocus>
+        <Button handleClick={next}>
           <p>Next</p>
         </Button>
       </div>
