@@ -160,8 +160,10 @@ export function Credits() {
               <span className="text-xl font-bold ml-2">{points}</span>
             </p>
             <p className="text-sm text-gray-600 mt-2">
-              All tokens are converted to points at the end of each round.
+              All tokens are converted to points at the <strong>end of each round</strong>.<br />
+              <strong>Reminder: Your goal is to earn as many tokens as possible -- but you're encouraged to share ideas and strategize with others. Talking can help you make better decisions. </strong>
             </p>
+
           </div>
           <div className="mt-4 md:mt-0">
             <button
