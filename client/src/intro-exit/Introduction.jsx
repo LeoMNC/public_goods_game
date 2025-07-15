@@ -36,7 +36,7 @@ export function Introduction({ next }) {
         </p>
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 shadow-sm space-y-2">
           <p>
-          This game runs for <b>several rounds</b>, each of which has <b>6 stages</b>. In each round, every player starts with <strong>10 tokens</strong> and can spend them in various ways during the different stages.
+          This game runs for <b>5 rounds</b>, each of which has <b>6 stages</b>. In each round, every player starts with <strong>10 tokens</strong> and can spend them in various ways during the different stages.
           At the end of each round, you may gain or lose tokens based on your actions and those of other players. Whatever is left over will be converted into points and you will receive a summary of your performance.
           At the end of the game, you can spend your points on prizes like stickers, candy, or extra Sona credits. <strong>Try to get as many points as possible to maximize your rewards!</strong>
           </p>

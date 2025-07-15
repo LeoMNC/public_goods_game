@@ -113,7 +113,7 @@ export function Punish() {
   return (
     <div className="mt-5 px-8 py-6 bg-white rounded-lg shadow-lg">
       <p className="mb-4">
-        Select players to punish. For each player punished, you will lose 1 coin and they will lose 5 coins.
+        Select players to punish. For each player punished, you will lose 1 token and they will lose 5 tokens.
       </p>
       <div className="flex justify-center mt-8">
         <div className="w-full max-w-md">
