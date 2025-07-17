@@ -3,7 +3,6 @@ import { ClassicListenersCollector } from "@empirica/core/admin/classic";
 export const Empirica = new ClassicListenersCollector();
 const PUNISH_MULTIPLIER = 5;
 const CONTRIBUTION_MULTIPLIER = 2;
-import { useRound, usePlayers } from "@empirica/core/player/classic/react";
 
 
 // Game Start
@@ -60,18 +59,18 @@ Empirica.onRoundStart(({ round }) => {
 
 // Stage Start
 Empirica.onStageStart(({ stage }) => {  
-  console.log(`[StageStart] Stage started: ${stage.get("name")}`);
+  console.log(`[StageTrack] Stage started: ${stage.get("name")}`);
   if (stage.get("name") !== "credits") return;
   
   const round = stage.round;
-  console.log("[StageStart] Processing credits stage");
+  console.log("[StageTrack] Processing credits stage");
   const players = round.currentGame.players;  
   // 1) Public‐goods returns
   players.forEach(p => {
     const share = round.get("share") || 0;
     const currentTokens = p.get("tokens") || 0;
     p.set("tokens", currentTokens + share);
-    console.log(`[StageStart] Player ${p.get("name")} received share: ${share}, new tokens: ${currentTokens + share}`);
+    console.log(`[StageTrack] Player ${p.get("name")} received share: ${share}, new tokens: ${currentTokens + share}`);
   });
 
   // 2) Incoming transfers
@@ -79,14 +78,14 @@ Empirica.onStageStart(({ stage }) => {
     const rec = p.round.get("transfersReceived") || 0;
     const currentTokens = p.get("tokens") || 0;
     p.set("tokens", currentTokens + rec);
-    console.log(`[StageStart] Player ${p.get("name")} received transfers: ${rec}, new tokens: ${currentTokens + rec}`);
+    console.log(`[StageTrack] Player ${p.get("name")} received transfers: ${rec}, new tokens: ${currentTokens + rec}`);
   });
 
   // 3) Punishment penalties (for targets)  - FIXED
   // Create a map to accumulate total punishments per player
   const punishmentTotals = {};
   players.forEach(p => {
-    punishmentTotals[p.get("name")] = 0;
+    punishmentTotals[p.get("id")] = 0;
   });
   
   // Accumulate punishments from all players
@@ -101,17 +100,17 @@ Empirica.onStageStart(({ stage }) => {
   
   // Apply punishments to targets
   players.forEach(p => {
-    const punishment = punishmentTotals[p.get("name")] || 0;
+    const punishment = punishmentTotals[p.get("id")] || 0;
     p.round.set("punishmentPenalty", punishment);
     
     if (punishment > 0) {
       const currentTokens = p.get("tokens") || 0;
       p.set("tokens", Math.max(0, currentTokens - punishment));
-      console.log(`[StageStart] Player ${p.get("name")} punished: -${punishment}, new tokens: ${currentTokens - punishment}`);
+      console.log(`[StageTrack] Player ${p.get("name")} punished: -${punishment}, new tokens: ${currentTokens - punishment}`);
     }
   });
 
-  console.log("[StageStart] Applied public‐goods returns, transfers, and punishments.");
+  console.log("[StageTrack] Applied public‐goods returns, transfers, and punishments.");
 });
 
 // Stage End
@@ -119,7 +118,7 @@ Empirica.onStageEnded(({ stage }) => {
   const stageName = stage.get("name");
   const round = stage.round;
   const roundName = round.get("name");
-  console.log(`[StageEnd] Stage ended: ${stageName} in round ${roundName}`);
+  console.log(`[StageTrack] Stage ended: ${stageName} in round ${roundName}`);
   const players = round.currentGame.players;
   switch (stageName) {
     case "contribution":
@@ -154,32 +153,32 @@ Empirica.onStageEnded(({ stage }) => {
       console.log(`[StageEnd] Each player will receive ${share} from the pool`);
       break;
 
-case "monitor":
-  console.log("[StageEnd] Processing monitoring...");
-  players.forEach(p => {
-    const monitoredPlayers = p.round.get("monitoredPlayers") || [];
-    // Get the cost that was already set client-side
-    const monitoringCost = p.round.get("monitoringCost") || 0;
-    
-    console.log(
-      `[StageEnd] Player ${p.get("name")} monitored ${monitoredPlayers.length} players, cost: ${monitoringCost}`
-    );
+  case "monitor":
+    console.log("[StageEnd] Processing monitoring...");
+    players.forEach(p => {
+      const monitoredPlayers = p.round.get("monitoredPlayers") || [];
+      // Get the cost that was already set client-side
+      const monitoringCost = p.round.get("monitoringCost") || 0;
+      
+      console.log(
+        `[StageEnd] Player ${p.get("name")} monitored ${monitoredPlayers.length} players, cost: ${monitoringCost}`
+      );
 
-    // Store monitoring results
-    const monitoringResults = monitoredPlayers.map(monitoredId => {
-      const monitoredPlayer = players.find(mp => mp.id === monitoredId);
-      return monitoredPlayer ? {
-        id: monitoredPlayer.id,
-        contribution: monitoredPlayer.round.get("contribution") || 0,
-        kept: monitoredPlayer.round.get("kept") || 0
-      } : null;
-    }).filter(Boolean);
-    
-    p.round.set("monitoringResults", monitoringResults);
-    // Ensure cost is preserved
-    p.round.set("monitoringCost", monitoringCost);
-  });
-  break;
+      // Store monitoring results
+      const monitoringResults = monitoredPlayers.map(monitoredId => {
+        const monitoredPlayer = players.find(mp => mp.id === monitoredId);
+        return monitoredPlayer ? {
+          id: monitoredPlayer.id,
+          contribution: monitoredPlayer.round.get("contribution") || 0,
+          kept: monitoredPlayer.round.get("kept") || 0
+        } : null;
+      }).filter(Boolean);
+      
+      p.round.set("monitoringResults", monitoringResults);
+      // Ensure cost is preserved
+      p.round.set("monitoringCost", monitoringCost);
+    });
+    break;
 
     case "intermission":
       console.log("[StageEnd] Intermission stage completed");

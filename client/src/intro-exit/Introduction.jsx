@@ -49,30 +49,6 @@ export function Introduction({ next }) {
             <li><strong>Save</strong> them in your personal account.</li>
           </ul>
 
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 shadow-sm space-y-2">
-          <p>
-            <strong>Example:</strong><br />
-          </p>
-          <p>
-            You're in a group of <strong>{examplePlayerCount} players</strong>.
-          </p>
-          <p>
-            Together, the group contributes {groupContribution} tokens to the shared pool.
-          </p>
-          <p>
-            The pool gets <strong>doubled</strong>: {groupContribution} × {CONTRIBUTION_MULTIPLIER} = <strong>{doubledPool} tokens</strong>.
-          </p>
-          <p>
-            That's <strong>{individualShare} tokens</strong> per player:<br />
-            {doubledPool} ÷ {examplePlayerCount} = {individualShare}
-          </p>
-          <p>
-            There are then opportunities for <strong>monitoring</strong>, <strong>punishment</strong>, and <strong>rewards</strong>.
-          </p>
-          <p>
-            At the end of the round, your final balance becomes points, and tokens reset for the next round.
-          </p>
-        </div>
         <div className="my-8">
           <h3 className="text-xl font-semibold text-gray-900 mb-2">Visual Overview</h3>
           <img
