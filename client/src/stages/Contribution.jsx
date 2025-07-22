@@ -20,44 +20,52 @@ export function Contribution() {
   }
 
   return (
-    <div className="text-center">
-      <h2>You have {currentTokens} tokens.</h2>
-      <p>You can contribute any number of your tokens to a shared pool.</p>
-      <ul className="list-disc list-inside text-left mx-auto max-w-md mt-4">
-        <li>The pool is multiplied by <strong>2</strong>.</li>
-        <li>It's split evenly among all players.</li>
-        <li>You keep any tokens you don't contribute.</li>
-      </ul>
+    <div className="text-center mt-3 sm:mt-5 p-20">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6 max-w-2xl mx-auto">
+        <h3 className="text-xl font-bold text-blue-800 mb-2">How Contribution Works</h3>
+        <ul className="list-disc list-inside text-left mx-auto max-w-md mt-4">
+          <li>Contribute any number of your tokens to the shared pool.</li>
+          <li>The pool is multiplied by <strong>2</strong>.</li>
+          <li>It's split evenly among all players.</li>
+          <li>You keep any tokens you don't contribute.</li>
+        </ul>
+        <p className="mt-4">
+          <strong>Remember:</strong> You can only contribute <strong>once per round</strong>.
+          <p>If you choose to contribute <strong>all</strong> your tokens now, 
+          you won’t have any left for other actions this round 
+          (like <em>monitoring</em>, <em>punishing</em>, or <em>transferring</em>).</p>
+        </p>
 
-      {!player.stage.submitted && (
-        <>
-          <div className="mt-6">
-            <label className="block mb-2">How many tokens will you contribute?</label>
-            <input
-              type="range"
-              min="0"
-              max={currentTokens}
-              step="1"
-              value={contribution}
-              onChange={(e) => setContribution(parseInt(e.target.value))}
-            />
-            <p className="mt-2">Selected: <strong>{contribution}</strong></p>
+        {!player.stage.submitted && (
+          <>
+            <div className="mt-6">
+              <h1 className="text-lg font-bold mb-2">How many tokens will you contribute?</h1>
+              <input
+                type="range"
+                min="0"
+                max={currentTokens}
+                step="1"
+                value={contribution}
+                onChange={(e) => setContribution(parseInt(e.target.value))}
+              />
+              <p className="mt-2">Selected: <strong>{contribution}</strong></p>
+            </div>
+
+            <div className="mt-4">
+              <Button handleClick={handleSubmit} primary>
+                Submit
+              </Button>
+            </div>
+          </>
+        )}
+
+        {player.stage.submitted && (
+          <div className="mt-6 text-gray-600">
+            <h3 className="text-lg font-semibold">Waiting on other players...</h3>
+            <p className="text-sm">Please wait until all players have submitted.</p>
           </div>
-
-          <div className="mt-4">
-            <Button handleClick={handleSubmit} primary>
-              Submit
-            </Button>
-          </div>
-        </>
-      )}
-
-      {player.stage.submitted && (
-        <div className="mt-6 text-gray-600">
-          <h3 className="text-lg font-semibold">Waiting on other players...</h3>
-          <p className="text-sm">Please wait until all players have submitted.</p>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

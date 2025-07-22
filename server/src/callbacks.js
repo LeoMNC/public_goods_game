@@ -52,7 +52,7 @@ Empirica.onRoundStart(({ round }) => {
     p.round.set("givenPunishments", []);
     p.round.set("punishmentReceived", 0);
     console.log(
-      `[RoundStart] Initialized Player ${p.get("name")}: tokens=10, contribution=0, kept=0`
+      `[RoundStart] Reset Player ${p.get("name")}: tokens=10, contribution=0, kept=0`
     );
   });
 });

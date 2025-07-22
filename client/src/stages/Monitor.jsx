@@ -58,48 +58,20 @@ const handleSubmit = useCallback(() => {
       <Scoreboard />
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6 max-w-2xl mx-auto">
-        <h3 className="text-lg font-semibold text-blue-800 mb-2">
-          How Monitoring Works
-        </h3>
-        <div className="flex items-center space-x-4">
-          <div className="bg-blue-100 p-3 rounded-full">
-            {/* eye icon */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-blue-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-              />
-            </svg>
-          </div>
-          <p className="text-left">
-            Spend <strong>1 token per player</strong> to reveal how much they contributed this round. 
-            You can use this intel to reward team players... or punish free-riders. 
-          </p>
-        </div>
+        <h3 className="text-xl font-bold text-blue-800 mb-2">How Monitoring Works</h3>
+        <p>Spend <strong>1 token per player</strong> to reveal how much they contributed this round.</p>
+        <p>Use this intel to reward team players — or punish free-riders.</p>
+        <p>
+          <strong>Remember:</strong> You can only monitor <strong>once per round</strong>, 
+          but you're free to select <strong>as many players</strong> as you like 
+          (as long as you can afford the cost).
+        </p>
       </div>
 
       {!player.stage.submitted ? (
         <>
           <div className="mt-6">
-            <h1 className="text-xl font-bold mb-2">Select players to monitor</h1>
-            <p className="text-gray-600 mb-4">
-              Each selection costs 1 token. 
-              (including zero).
-            </p>
+            <h1 className="text-lg font-bold mb-2">Which players would you like to monitor?</h1>
             <div className="flex flex-col space-y-2 max-w-md mx-auto">
               {otherPlayers.map((p) => {
                 const inputId = `player-${p.id}`;
@@ -148,7 +120,7 @@ const handleSubmit = useCallback(() => {
 
           <div className="mt-6 bg-gray-50 p-4 rounded-lg inline-block">
             <p className="font-medium">
-              Cost: {cost} {cost === 1 ? "token" : "tokens"}
+              <strong>Cost:</strong> {cost} {cost === 1 ? "token" : "tokens"}
             </p>
             {disabled && (
               <p className="text-red-500 text-sm mt-1">

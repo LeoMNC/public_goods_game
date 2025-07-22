@@ -67,59 +67,64 @@ function PunishmentComponent() {
   const disabled = cost > tokens;
 
   return (
-    <div className="p-6 border rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-4">Select Players to Punish</h2>
-
+    <div className="text-center mt-3 sm:mt-5 p-20">
+      
       <Scoreboard />
 
-      <ul className="space-y-2">
-        {players
-          .filter((p) => p.id !== currentPlayer.id)
-          .map((p) => (
-            <li key={p.id} className="flex items-center">
-              <input
-                type="checkbox"
-                id={`punish-${p.id}`}
-                checked={punishedIds.includes(p.id)}
-                onChange={() => togglePunish(p.id)}
-                className="mr-3"
-              />
-              <label htmlFor={`punish-${p.id}`}> 
-                {p.get("name")} 
-              </label>
-            </li>
-          ))}
-      </ul>
-
-      <div className="mt-4">
-        <p>
-          <strong>Cost:</strong> {cost} token{cost !== 1 && "s"}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6 max-w-2xl mx-auto">
+        <h3 className="text-xl font-bold text-blue-800 mb-2">How Punishment Works</h3>
+        <ul className="list-disc list-inside text-left mx-auto max-w-md mt-4">
+          <li>You lose <strong>1 token</strong> for each player you punish.</li>
+          <li>Each punished player loses <strong>5 tokens</strong> at the end of the round.</li>
+        </ul>
+        <p className="mt-4">
+          <strong>Remember:</strong> You can only punish <strong>once per round</strong>,
+          but you're free to select <strong>as many players</strong> as you like 
+          (as long as you can afford the cost).
         </p>
-        {error && <p className="text-red-600 font-bold mt-2">{error}</p>}
-      </div>
+        <div className="mt-6">
+          <h1 className="text-lg font-bold mb-2">Which players would you like to punish?</h1>
+        </div>
+        <ul className="space-y-2">
+          {players
+            .filter((p) => p.id !== currentPlayer.id)
+            .map((p) => (
+              <li key={p.id} className="flex items-center">
+                <input
+                  type="checkbox"
+                  id={`punish-${p.id}`}
+                  checked={punishedIds.includes(p.id)}
+                  onChange={() => togglePunish(p.id)}
+                  className="mr-3"
+                />
+                <label htmlFor={`punish-${p.id}`}> 
+                  {p.get("name")} 
+                </label>
+              </li>
+            ))}
+        </ul>
 
-      <button
-        onClick={submitPunishment}
-        disabled={disabled}
-        className="mt-6 px-5 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Confirm Punishment
-      </button>
+        <div className="mt-4">
+          <p>
+            <strong>Cost:</strong> {cost} token{cost !== 1 && "s"}
+          </p>
+          {error && <p className="text-red-600 font-bold mt-2">{error}</p>}
+        </div>
+
+        <button
+          onClick={submitPunishment}
+          disabled={disabled}
+          className="mt-6 px-5 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Confirm Punishment
+        </button>
+      </div>
     </div>
   );
 }
 
 export function Punish() {
   return (
-    <div className="mt-5 px-8 py-6 bg-white rounded-lg shadow-lg">
-      <p className="mb-4">
-        Select players to punish. For each player punished, you will lose 1 token and they will lose 5 tokens.
-      </p>
-      <div className="flex justify-center mt-8">
-        <div className="w-full max-w-md">
-          <PunishmentComponent />
-        </div>
-      </div>
-    </div>
+  <PunishmentComponent />
   );
 }
