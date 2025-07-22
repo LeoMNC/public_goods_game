@@ -27,34 +27,15 @@ export function Scoreboard() {
         
         <div className="space-y-3">
           <div className="flex justify-between text-base">
-            <span className="font-medium">Your Tokens:</span>
-            <span className="font-semibold">{tokens}</span>
-          </div>
-          
-          <div className="flex justify-between text-base">
-            <span className="font-medium">Last Contribution:</span>
+            <span className="font-medium">Your Contribution:</span>
             <span className="font-semibold">{contribution}</span>
           </div>
           
           <div className="flex justify-between text-base">
-            <span className="font-medium">Total Group:</span>
+            <span className="font-medium">Group Contribution:</span>
             <span className="font-semibold">{totalDonated}</span>
           </div>
           
-          {/* Optional progress bar visualization */}
-          <div className="pt-2">
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full" 
-                style={{ 
-                  width: '${players.length ? Math.min(100, (contribution / (tokens + contribution)) * 100 : 0}%'
-                }}
-              ></div>
-            </div>
-            <div className="text-xs text-gray-500 mt-1 text-right">
-              Your contribution: {contribution} / {tokens + contribution}
-            </div>
-          </div>
         </div>
       </div>
     </div>
