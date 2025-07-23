@@ -52,7 +52,7 @@ Empirica.onRoundStart(({ round }) => {
     p.round.set("givenPunishments", []);
     p.round.set("punishmentReceived", 0);
     console.log(
-      `[RoundStart] Reset Player ${p.get("name")}: tokens=10, contribution=0, kept=0`
+      `[RoundStart] Player ${p.get("name")} balance reset to 10 tokens for new round.`
     );
   });
 });
@@ -118,7 +118,7 @@ Empirica.onStageEnded(({ stage }) => {
   const stageName = stage.get("name");
   const round = stage.round;
   const roundName = round.get("name");
-  console.log(`[StageTrack] Stage ended: ${stageName} in round ${roundName}`);
+  console.log(`[StageTrack] Stage ended: ${stageName} in ${roundName}`);
   const players = round.currentGame.players;
   switch (stageName) {
     case "contribution":
