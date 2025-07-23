@@ -105,8 +105,9 @@ Empirica.onStageStart(({ stage }) => {
     
     if (punishment > 0) {
       const currentTokens = p.get("tokens") || 0;
-      p.set("tokens", Math.max(0, currentTokens - punishment));
-      console.log(`[StageTrack] Player ${p.get("name")} punished: -${punishment}, new tokens: ${currentTokens - punishment}`);
+      const newTokens = Math.max(0, currentTokens - punishment)
+      p.set("tokens", newTokens);
+      console.log(`[StageTrack] Player ${p.get("name")} got punished: -${punishment}, new tokens: ${newTokens}`);
     }
   });
 
@@ -189,7 +190,7 @@ Empirica.onStageEnded(({ stage }) => {
       players.forEach((p) => {
         const given = p.round.get("givenPunishments") || [];
         // Get the cost that was already set client-side
-        const punishCost = p.round.get("punishmentCost") || given.length;
+        const punishCost = p.round.get("punishCost") || given.length;
         
         const currentTokens = p.get("tokens") || 0;
         const newTokens = Math.max(0, currentTokens - punishCost);

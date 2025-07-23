@@ -37,7 +37,7 @@ export function usePunishment() {
 
   // Just record the punishment, don't deduct tokens here
     currentPlayer.round.set("givenPunishments", punishedIds);
-    currentPlayer.round.set("punishmentCost", cost);
+    currentPlayer.round.set("punishCost", cost);
     currentPlayer.round.set("penaltyMap", penaltyMap);
 
 

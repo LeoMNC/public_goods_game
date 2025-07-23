@@ -72,55 +72,62 @@ export function Transfer() {
   };
 
   return (
-    <div className="mt-3 sm:mt-5 p-20">
-      <p>
-        <strong>4.1</strong> Transfer some tokens to another player. You can reward them for being nice!
-      </p>
+    <div className="text-center mt-3 sm:mt-5 p-20">
 
       <Scoreboard />
 
-      <div className="flex w-sw justify-center">
-        <div className="p-10">
-          <h1 className="text-xl font-bold">To whom would you like to transfer tokens?</h1>
-          <div className="p-4 border rounded">
-            <h2 className="text-lg font-bold">Transfer Tokens</h2>
-            <ul className="list-disc pl-5">
-              {players
-                .filter((p) => p.id !== currentPlayer?.id)
-                .map((player) => (
-                  <li key={player.id} className="flex items-center gap-2">
-                    <label htmlFor={`transfer-${player.id}`}>
-                      {player.get("name")}
-                    </label>
-                    <input
-                      type="number"
-                      id={`transfer-${player.id}`}
-                      min="0"
-                      max="5"
-                      value={transfers[player.id] || 0}
-                      onChange={(e) =>
-                        handleTransferChange(
-                          player.id,
-                          Number(e.target.value)
-                        )
-                      }
-                      className="w-16 border rounded px-2"
-                    />
-                  </li>
-                ))}
-            </ul>
-            <p className="mt-2">Transfer Total: {totalTransfer} tokens</p>
-            {error && <p className="text-red-600 font-bold">{error}</p>}
-            <button
-              onClick={handleTransferClick}
-              disabled={totalTransfer > playerTokens}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Transfer
-            </button>
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6 max-w-2xl mx-auto">
+        <h3 className="text-xl font-bold text-blue-800 mb-2">How Transferring Works</h3>
+        <p><strong>Each token you transfer</strong> costs <strong>1 token</strong> from your total.</p>
+        <p>You can send <strong>up to 5 tokens</strong> to each player.</p>
+        <p><strong>Remember:</strong> You can only transfer <strong>once per round</strong>, 
+          but you're free to select <strong>as many players</strong> as you like 
+          (as long as you can afford the cost).
+        </p>
+      </div>
+      
+      <div className="mt-6">
+        <h1 className="text-lg font-bold mb-2">Which players would you like to transfer tokens to?</h1>
+        <div className="flex flex-col space-y-2 max-w-md mx-auto">
+          {players
+            .filter((p) => p.id !== currentPlayer?.id)
+            .map((player) => (
+              <li key={player.id} className="flex items-center gap-2">
+                <label htmlFor={`transfer-${player.id}`}>
+                  {player.get("name")}
+                </label>
+                <input
+                  type="number"
+                  id={`transfer-${player.id}`}
+                  min="0"
+                  max="5"
+                  value={transfers[player.id] || 0}
+                  onChange={(e) =>
+                    handleTransferChange(
+                      player.id,
+                      Number(e.target.value)
+                    )
+                  }
+                  className="w-16 border rounded px-2"
+                />
+              </li>
+            ))
+          }
+              <div className="mt-6 bg-gray-50 p-4 rounded-lg inline-block">
+                <p className="font-medium">
+                  <strong>Transfer Total:</strong> {totalTransfer} tokens
+                </p>
+                {error && <p className="text-red-600 font-bold">{error}</p>}
+                <button
+                  onClick={handleTransferClick}
+                  disabled={totalTransfer > playerTokens}
+                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Transfer
+                </button>
+              </div>
           </div>
         </div>
       </div>
-    </div>
   );
 }
