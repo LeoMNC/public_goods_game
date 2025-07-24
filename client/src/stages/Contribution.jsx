@@ -31,9 +31,9 @@ export function Contribution() {
         </ul>
         <p className="mt-4">
           <strong>Remember:</strong> You can only contribute <strong>once per round</strong>.
-          <p>If you choose to contribute <strong>all</strong> your tokens now, 
+          If you choose to contribute <strong>all</strong> your tokens now, 
           you won’t have any left for other actions this round 
-          (like <em>monitoring</em>, <em>punishing</em>, or <em>transferring</em>).</p>
+          (like <em>monitoring</em>, <em>punishing</em>, or <em>transferring</em>).
         </p>
 
         {!player.stage.submitted && (

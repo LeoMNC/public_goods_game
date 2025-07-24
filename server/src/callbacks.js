@@ -85,9 +85,9 @@ Empirica.onStageStart(({ stage }) => {
   // Create a map to accumulate total punishments per player
   const punishmentTotals = {};
   players.forEach(p => {
-    punishmentTotals[p.get("id")] = 0;
+    punishmentTotals[p.id] = 0;
   });
-  
+
   // Accumulate punishments from all players
   players.forEach(punisher => {
     const penaltyMap = punisher.round.get("penaltyMap") || {};
@@ -97,12 +97,13 @@ Empirica.onStageStart(({ stage }) => {
       }
     }
   });
-  
+  console.log('Punishment Totals:')
+  console.log(punishmentTotals)
   // Apply punishments to targets
   players.forEach(p => {
-    const punishment = punishmentTotals[p.get("id")] || 0;
-    p.round.set("punishmentPenalty", punishment);
-    
+    const punishment = punishmentTotals[p.id];
+    p.round.set("punishmentPenalty", punishment || 0);
+    console.log(`player ${p.get('name')} had a punishment penalty of ${punishment}`)
     if (punishment > 0) {
       const currentTokens = p.get("tokens") || 0;
       const newTokens = Math.max(0, currentTokens - punishment)
