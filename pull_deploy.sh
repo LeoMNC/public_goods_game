@@ -21,11 +21,13 @@ docker network prune -f >/dev/null 2>&1  # remove unused networks :contentRefere
 docker builder prune -a --force >/dev/null 2>&1  # BuildKit cache :contentReference[oaicite:5]{index=5}
 
 # 3/6 ⇒ SETUP IMAGE VARIABLES
+echo "[3/6] ⇒ Setting up image variables"
 DEFAULT_USER="marghetislab"
 DEFAULT_TAG="v1"
 DOCKER_USER="${1:-$DEFAULT_USER}"
 TAG="${2:-$DEFAULT_TAG}"
 IMAGE="${DOCKER_USER}/public-goods-game:${TAG}"
+echo "  Using image: ${IMAGE}"
 
 # 4/6 ⇒ PULL THE IMAGE
 echo "[4/6] ⇒ Pulling image ${IMAGE}..."

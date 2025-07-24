@@ -71,17 +71,14 @@ rm "$BUILD_LOG"
 
 echo "[6/6] ⇒ Verifying & reporting"
 
-# Check if the image digest is available locally in build output metadata
-DIGEST=$(docker buildx imagetools inspect "${IMAGE}:${TAG}" --format '{{.Manifest.Digest}}' 2>/dev/null)
+REMOTE_DIGEST=$(docker buildx imagetools inspect "${IMAGE}:${TAG}" --format '{{.Manifest.Digest}}' 2>/dev/null || true)
 
-if [[ -n "$DIGEST" ]]; then
-  echo "====> Successfully pushed: ${IMAGE}@${DIGEST}"
+if [[ -n "$REMOTE_DIGEST" ]]; then
+  echo "====> Successfully pushed: ${IMAGE}@${REMOTE_DIGEST}"
   echo "====> Image tag: ${IMAGE}:${TAG}"
 else
-  echo "!!! VERIFY FAILED: digest not found via imagetools inspect !!!" >&2
+  echo "!!! ERROR: Image was not found in registry via imagetools inspect !!!" >&2
   exit 1
 fi
 
-DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "${IMAGE}:${TAG}")
-echo "====> Image digest: ${DIGEST}"
 echo "All done!"

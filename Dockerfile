@@ -28,7 +28,8 @@ RUN npm run build
 WORKDIR /app
 RUN rm -rf public \
  && mkdir -p public \
- && cp -R client/dist/* public/
+ && cp -R client/dist/* public/ \
+ && ls -l public/index.html
 
 # 6) Set environment variables
 ENV HOST=0.0.0.0 \
