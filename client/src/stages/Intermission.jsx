@@ -1,7 +1,7 @@
 // client/src/stages/Intermission.jsx
 import React from "react";
 import { usePlayer, usePlayers, useRound, useStage } from "@empirica/core/player/classic/react";
-import { Scoreboard } from "../components/Scoreboard";
+import stage3Img from "../stages/Stage3Intermission.png";
 
 export function Intermission() {
   const player = usePlayer();

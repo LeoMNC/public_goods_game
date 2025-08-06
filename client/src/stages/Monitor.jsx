@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { usePlayer, usePlayers } from "@empirica/core/player/classic/react";
 import { Scoreboard } from "../components/Scoreboard";
+import stage2Img from "../stages/Stage2Monitoring.png";
+
 
 export function Monitor() {
   const player = usePlayer();

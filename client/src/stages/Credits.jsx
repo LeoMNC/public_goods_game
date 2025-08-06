@@ -1,6 +1,8 @@
 // client/src/stages/Credits.jsx
 import React, { useEffect, useState } from "react";
 import { usePlayer, usePlayers, useRound } from "@empirica/core/player/classic/react";
+import stage6Img from "../stages/Stage6Credits.png";
+
 
 export function Credits() {
   const player = usePlayer();

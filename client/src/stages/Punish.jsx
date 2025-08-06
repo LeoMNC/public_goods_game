@@ -2,6 +2,8 @@
 import React, { useState, useCallback } from "react";
 import { usePlayers, usePlayer } from "@empirica/core/player/classic/react";
 import { Scoreboard } from "../components/Scoreboard";
+import stage4Img from "../stages/Stage4Punishment.png";
+
 
 // Client‐side multiplier must match server
 const PUNISH_MULTIPLIER = 5;

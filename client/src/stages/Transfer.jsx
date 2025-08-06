@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { usePlayer, usePlayers } from "@empirica/core/player/classic/react";
 import { Scoreboard } from "../components/Scoreboard";
+import stage5Img from "../stages/Stage5Transfers.png";
+
 
 export function Transfer() {
   const players = usePlayers() || [];

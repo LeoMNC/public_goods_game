@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Slider, usePlayer, useStage } from "@empirica/core/player/classic/react";
 import { Button } from "../components/Button.jsx";
+import stage1Img from "../stages/Stage1Contribution.png";
+
 
 export function Contribution() {
   const player = usePlayer();
