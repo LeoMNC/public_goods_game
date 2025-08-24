@@ -19,16 +19,15 @@ RUN empirica npm install
 WORKDIR /app
 COPY . .
 
-# 4) Build the client into a static bundle
+# 4. Build client app
 WORKDIR /app/client
-# This assumes your package.json has a "build" script (e.g. "vite build")
 RUN npm run build
 
-# 5) Move the built assets into /app/public so Empirica’s FileServer will serve them
+# 5. Copy built frontend to /app/public for Empirica
 WORKDIR /app
 RUN rm -rf public \
  && mkdir -p public \
- && cp -R client/dist/* public/ \
+ && cp -a client/dist/. public/ \
  && ls -l public/index.html
 
 # 6) Set environment variables

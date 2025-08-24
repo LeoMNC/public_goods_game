@@ -6,8 +6,8 @@
     "minimist": "1.2.6"
   },
   "devDependencies": {
-    "esbuild": "0.14.47",
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "esbuild": "^0.14.47"
   },
   "scripts": {
     "build": "rsync -aP --exclude=node_modules --exclude=*.js -m src/* dist/ && esbuild src/index.js --color=true --log-level=warning --platform=node --define:process.env.NODE_ENV='\"production\"' --bundle --minify --outfile=dist/index.js --sourcemap",

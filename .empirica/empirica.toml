@@ -1,4 +1,4 @@
-name = "prisoners-dilemma"
+name = "public_goods_game"
 
 [tajriba.auth]
 srtoken = "bikxDhwaPieNvZZC"
