@@ -9,7 +9,8 @@ import { ExitSurvey } from "./intro-exit/ExitSurvey";
 import { Introduction } from "./intro-exit/Introduction";
 import { NameStep } from "./intro-exit/NameStep";
 import { MyPlayerForm } from "./intro-exit/playerCreate";
-
+import { DemoSurvey } from "./intro-exit/DemoSurvey";
+import { ConsentForm } from "./intro-exit/Consent";
 export default function App() {
   const urlParams = new URLSearchParams(window.location.search);
   const playerKey = urlParams.get("participantKey") || "";
@@ -18,11 +19,11 @@ export default function App() {
   const url = `${protocol}//${host}/query`;
 
   function introSteps({ game, player }) {
-    return [NameStep, Introduction];
+    return [ConsentForm, NameStep, Introduction];
   }
 
   function exitSteps({ game, player }) {
-    return [ExitSurvey];
+    return [DemoSurvey, ExitSurvey];
   }
 
   return (

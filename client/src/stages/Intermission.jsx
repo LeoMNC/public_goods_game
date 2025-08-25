@@ -17,7 +17,6 @@ export function Intermission() {
   const meanContribution = totalContribution / players.length;
   const finalTokens = player.get("tokens");
 
-  // This is where the issue is - we need to get the monitored players from the current round
   const monitoredIds = player.round.get("monitoredPlayers") || [];
   const monitoredPlayers = players.filter((p) => monitoredIds.includes(p.id));
   const monitoringCost = monitoredPlayers.length;

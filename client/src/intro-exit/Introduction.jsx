@@ -1,7 +1,7 @@
 // client/src/intro-exit/Introduction.jsx
 import React from "react";
 import { usePlayer, useGame } from "@empirica/core/player/classic/react";
-import { Button } from "../components/Button";
+import { Button } from "../components/Button.jsx";
 import stagesImg from "../stages/RoundOverview.png";
 import { useEffect } from "react";
 
