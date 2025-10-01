@@ -1,0 +1,25 @@
+# Syntax: docker/dockerfile:1.7
+
+# Minimal runtime with Empirica CLI available to run the bundled app
+FROM debian:bookworm-slim
+
+# Install curl + tini (for clean PID 1) and CA certs
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl tini \
+  && rm -rf /var/lib/apt/lists/*
+
+# Install empirica CLI into /usr/local/bin
+# (Pin to a version if you prefer; default gets latest stable)
+RUN curl -fsSL https://install.empirica.dev | sh -s -- -b /usr/local/bin
+
+# Copy bundle produced by the build script
+ARG BUNDLE_FILE=dist/empirica-bundle.tar.zst
+WORKDIR /app
+COPY ${BUNDLE_FILE} /app/bundle.tar.zst
+
+# Default port used by empirica serve
+EXPOSE 3000
+
+# Use tini as entrypoint; default cmd runs the app in production
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["empirica", "serve", "/app/bundle.tar.zst"]

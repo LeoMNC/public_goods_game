@@ -9,17 +9,15 @@ export function Monitor() {
   const player = usePlayer();
   const players = usePlayers() || [];
   const currentTokens = player.get("tokens") || 0;
-
-  // Load previously‑selected players (or empty)
-  const [selectedPlayers, setSelectedPlayers] = useState(
-    player.round.get("monitoredPlayers") || []
-  );
-  
+  const [selectedPlayers, setSelectedPlayers] = useState([]);
+ 
   // Whenever the player object or list changes, re‑init selection
+  const didInit = React.useRef(false);
   useEffect(() => {
-    if (!player) return;
+    if (!player || didInit.current) return;
     setSelectedPlayers(player.round.get("monitoredPlayers") || []);
-  }, [player, players]);
+    didInit.current = true;
+  }, [player]);
 
   // 1 token per monitored player
   const cost = selectedPlayers.length;
@@ -33,7 +31,8 @@ export function Monitor() {
     []
   );
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback((e) => {
+    e.preventDefault();
     if (cost > currentTokens) {
       console.log(`Player ${player.id} tried to monitor with insufficient tokens`);
       return;
@@ -73,7 +72,7 @@ export function Monitor() {
       </div>
 
       {!player.stage.submitted ? (
-        <>
+        <form onSubmit={handleSubmit}>
           <div className="mt-6">
             <h1 className="text-lg font-bold mb-2">Which players would you like to monitor?</h1>
             <div className="flex flex-col space-y-2 max-w-md mx-auto">
@@ -136,7 +135,7 @@ export function Monitor() {
           <div className="mt-4">
             {/* pass handleClick, not onClick */}
             <button
-            onClick={handleSubmit}
+            type = 'submit'
             disabled={disabled}
             className={`mt-6 px-5 py-2 rounded-xl text-white transition ${
               disabled 
@@ -147,7 +146,7 @@ export function Monitor() {
             Submit
           </button>
           </div>
-        </>
+        </form>
       ) : (
         <div className="mt-6 text-gray-600">
           <h3 className="text-lg font-semibold">Waiting on other players...</h3>

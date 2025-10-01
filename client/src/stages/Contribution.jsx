@@ -9,9 +9,10 @@ export function Contribution() {
   const stage = useStage();
   const currentTokens = player.get("tokens") || 10; // Ensure tokens is set at the player level
 
-  const [contribution, setContribution] = useState(player.round.get("contribution") || 0);
+  const [contribution, setContribution] = useState(0);
 
-  function handleSubmit() {
+  function handleSubmit(e) {
+    if (e) e.preventDefault();
     // write your state value out
     player.round.set("contribution", contribution);
     player.stage.set("submit", true);
@@ -39,7 +40,7 @@ export function Contribution() {
         </p>
 
         {!player.stage.submitted && (
-          <>
+          <form onSubmit={handleSubmit}>  
             <div className="mt-6">
               <h1 className="text-lg font-bold mb-2">How many tokens will you contribute?</h1>
               <input
@@ -49,16 +50,19 @@ export function Contribution() {
                 step="1"
                 value={contribution}
                 onChange={(e) => setContribution(parseInt(e.target.value))}
+                onKeyDown={(e) => {
+                  if (e.key == 'Enter') {e.preventDefault();}
+                }}
               />
               <p className="mt-2">Selected: <strong>{contribution}</strong></p>
             </div>
 
             <div className="mt-4">
-              <Button handleClick={handleSubmit} primary>
+              <Button type ="submit" disabled={player.stage.submitted}>
                 Submit
               </Button>
             </div>
-          </>
+          </form>
         )}
 
         {player.stage.submitted && (
