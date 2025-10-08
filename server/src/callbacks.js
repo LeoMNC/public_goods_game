@@ -20,17 +20,19 @@ Empirica.onGameStart(({ game }) => {
     "contribution", "monitor", "intermission",
     "punish", "transfer", "credits"
   ];
-  
+  const playDuration = treatment.playDuration || 30;
+  const talkDuration = treatment.talkDuration || 60;
+    
   for (let i = 1; i <= numRounds; i++) {
     console.log(`[GameStart] Creating Round ${i}`);
     const round = game.addRound({
       name: `Round ${i}`,
     });
-    
     stageNames.forEach((stageName) => {
+      const roundDuration = (stageName === "credits") ? talkDuration : playDuration;
       round.addStage({
         name: stageName,
-        duration: 10000,
+        duration: roundDuration,
       });
       console.log(`[GameStart] Round ${i}, stage ${stageName} created`);
     });

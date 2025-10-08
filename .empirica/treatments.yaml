@@ -16,6 +16,16 @@ factors:
     values:
       - value: true
       - value: false
+  - desc: Duration of each stage in seconds
+    name: playDuration
+    values:
+      - value: 10
+      - value: 30
+  - desc: Duration of each stage in seconds
+    name: talkDuration
+    values:
+      - value: 30
+      - value: 60
 
 treatments:
   - name: _testing
@@ -23,6 +33,8 @@ treatments:
     factors:
       playerCount: 2
       numRounds: 3
+      playDuration: 30
+      talkDuration: 60
       chatEnabled: false
 
   - name: _testing_3p
@@ -30,46 +42,60 @@ treatments:
     factors:
       playerCount: 3
       numRounds: 3
+      playDuration: 30
+      talkDuration: 60
       chatEnabled: false
 
   - name: 3_players_chat
     desc: 3 players with chat enabled
     factors:
       playerCount: 3
-      numRounds: 5
+      numRounds: 30
+      playDuration: 10
+      talkDuration: 30
       chatEnabled: true
 
   - name: 3_players_nochat
     desc: 3 players with chat disabled
     factors:
       playerCount: 3
-      numRounds: 5
+      numRounds: 30
+      playDuration: 10
+      talkDuration: 30
       chatEnabled: false
 
   - name: 4_players_chat
     desc: 4 players with chat enabled
     factors:
       playerCount: 4
-      numRounds: 5
+      numRounds: 30
+      playDuration: 10
+      talkDuration: 30
       chatEnabled: true
 
   - name: 4_players_nochat
     desc: 4 players with chat disabled
     factors:
       playerCount: 4
-      numRounds: 5
+      numRounds: 30
+      playDuration: 10
+      talkDuration: 30
       chatEnabled: false
 
   - name: 5_players_chat
     desc: 5 players with chat enabled
     factors:
       playerCount: 5
-      numRounds: 5
+      numRounds: 30
+      playDuration: 10
+      talkDuration: 30
       chatEnabled: true
 
   - name: 5_players_nochat
     desc: 5 players with chat disabled
     factors:
       playerCount: 5
-      numRounds: 5
+      numRounds: 30
+      playDuration: 10
+      talkDuration: 30
       chatEnabled: false
