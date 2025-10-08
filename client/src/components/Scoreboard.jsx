@@ -7,7 +7,7 @@ export function Scoreboard() {
   const [totalDonated, setTotalDonated] = useState(0);
 
   // Safely get values with fallbacks
-  const tokens = player?.get("tokens") ?? 0;
+  const tokens = (player?.get("tokens") ?? 0).toFixed(2);
   const contribution = player?.round?.get("contribution") || 0;
 
   useEffect(() => {
