@@ -4,18 +4,14 @@
 #
 # Usage:
 #   ./pull_deploy.sh [<docker-user>] [<tag>] [--port <port>] [--name <container-name>] \
-#       [--env-file <path>] [--network <net>] [--volume <host:ctr>]... [--detach] [--no-healthcheck] [--skip-pull]
-#
-# Examples:
-#   ./pull_deploy.sh marghetislab v1 --port 3000 --name pgg --env-file .env --detach
-#   ./pull_deploy.sh marghetislab v1 --network web --volume "$(pwd)/data:/data"
+#       [--env-file <path>] [--network <net>] [--volume <host:ctr>]... \
+#       [--detach] [--no-healthcheck] [--docker-healthcheck] [--skip-pull]
 #
 # Notes:
-#   - Assumes the image was built by build_bundle_push.sh and its Dockerfile CMD runs:
-#       empirica serve /app/bundle.tar.zst
-#   - PORT inside the container can be overridden by --port (we pass PORT env to the container).
-#   - Add --detach to run in the background (default is attached so you can see logs).
-
+# - Default CMD should run Empirica, e.g.: empirica serve /app/bundle.tar.zst
+# - By default we perform an EXTERNAL readiness check from the host.
+#   Use --docker-healthcheck to set a Docker healthcheck that runs INSIDE the container
+#   (requires curl inside the image).
 set -euo pipefail
 
 # -------- Defaults --------
@@ -24,39 +20,58 @@ DEFAULT_TAG="v1"
 DEFAULT_NAME="public-goods-game"
 DEFAULT_PORT="3000"
 
-DOCKER_USER="${1:-$DEFAULT_USER}"
-TAG="${2:-$DEFAULT_TAG}"
+# -------- Helpers --------
+step() { echo "[$1] ⇒ $2"; }
+die()  { echo "ERROR: $*" >&2; exit 1; }
 
-# Remove the first two args so we can parse flags from the rest
-shift $(( $# >= 1 ? 1 : 0 ))
-shift $(( $# >= 1 ? 1 : 0 ))
+# -------- Arg pre-scan (flags-first friendly) --------
+# If first/second params look like flags, don't treat them as user/tag.
+ARG1="${1:-}"
+ARG2="${2:-}"
+if [[ -n "${ARG1}" && "${ARG1}" != --* ]]; then
+  DOCKER_USER="${ARG1}"
+  shift
+else
+  DOCKER_USER=""  # will be resolved below
+fi
+if [[ -n "${ARG2}" && "${ARG2}" != --* && -n "${DOCKER_USER:-}" ]]; then
+  TAG="${ARG2}"
+  shift
+else
+  TAG=""
+fi
 
+# Resolve DOCKER_USER via CLI > logged-in > default
+if [[ -z "${DOCKER_USER:-}" ]]; then
+  AUTO_USER="$(docker info --format '{{.Username}}' 2>/dev/null || true)"
+  DOCKER_USER="${AUTO_USER:-$DEFAULT_USER}"
+fi
+TAG="${TAG:-$DEFAULT_TAG}"
+
+# -------- Remaining flags --------
 PORT="$DEFAULT_PORT"
 NAME="$DEFAULT_NAME"
 ENV_FILE=""
 NETWORK=""
 VOLUMES=()
 DETACH=0
-HEALTHCHECK=1
+EXTERNAL_HEALTHCHECK=1
+INTERNAL_DOCKER_HEALTHCHECK=0
 SKIP_PULL=0
 
-# -------- Helpers --------
-step() { echo "[$1] ⇒ $2"; }
-die()  { echo "ERROR: $*" >&2; exit 1; }
-
-# -------- Parse flags --------
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --port)        PORT="${2:?missing value for --port}"; shift 2 ;;
-    --name)        NAME="${2:?missing value for --name}"; shift 2 ;;
-    --env-file)    ENV_FILE="${2:?missing value for --env-file}"; shift 2 ;;
-    --network)     NETWORK="${2:?missing value for --network}"; shift 2 ;;
-    --volume)      VOLUMES+=("${2:?missing value for --volume}"); shift 2 ;;
-    --detach)      DETACH=1; shift ;;
-    --no-healthcheck) HEALTHCHECK=0; shift ;;
-    --skip-pull)   SKIP_PULL=1; shift ;;
-    --)            shift; break ;;
-    *)             die "Unknown option: $1" ;;
+    --port)             PORT="${2:?missing value for --port}"; shift 2 ;;
+    --name)             NAME="${2:?missing value for --name}"; shift 2 ;;
+    --env-file)         ENV_FILE="${2:?missing value for --env-file}"; shift 2 ;;
+    --network)          NETWORK="${2:?missing value for --network}"; shift 2 ;;
+    --volume)           VOLUMES+=("${2:?missing value for --volume}"); shift 2 ;;
+    --detach)           DETACH=1; shift ;;
+    --no-healthcheck)   EXTERNAL_HEALTHCHECK=0; INTERNAL_DOCKER_HEALTHCHECK=0; shift ;;
+    --docker-healthcheck) INTERNAL_DOCKER_HEALTHCHECK=1; EXTERNAL_HEALTHCHECK=0; shift ;;
+    --skip-pull)        SKIP_PULL=1; shift ;;
+    --)                 shift; break ;;
+    *)                  die "Unknown option: $1" ;;
   esac
 done
 
@@ -74,30 +89,33 @@ if [[ "$SKIP_PULL" -eq 0 ]]; then
   docker pull "${IMAGE}"
 else
   step "1/6" "Skipping docker pull (user requested --skip-pull)"
+  if ! docker image inspect "${IMAGE}" >/dev/null 2>&1; then
+    die "Image ${IMAGE} not found locally. Remove --skip-pull or pull the image first."
+  fi
 fi
 
 # -------- 2/ Stop & remove any existing container --------
-step "2/6" "Stopping any existing container named '${NAME}'"
-docker stop "${NAME}" >/dev/null 2>&1 || true
-
-step "3/6" "Removing any existing container named '${NAME}'"
-docker rm -f "${NAME}" >/dev/null 2>&1 || true
+if docker ps -a --format '{{.Names}}' | grep -Fxq "${NAME}"; then
+  step "2/6" "Stopping existing container '${NAME}' (if running)"
+  docker stop "${NAME}" >/dev/null 2>&1 || true
+  step "2/6" "Removing existing container '${NAME}'"
+  docker rm -f "${NAME}" >/dev/null 2>&1 || true
+fi
 
 # -------- 3/ Build docker run args --------
-RUN_ARGS=( --name "${NAME}"
-           --restart unless-stopped
-           -e "PORT=${PORT}"
-           -p "${PORT}:${PORT}" )
+RUN_ARGS=(
+  --name "${NAME}"
+  --restart unless-stopped
+  -e "PORT=${PORT}"
+  -p "${PORT}:${PORT}"
+)
 
 if [[ -n "$ENV_FILE" ]]; then
-  if [[ ! -f "$ENV_FILE" ]]; then
-    die "Env file not found: $ENV_FILE"
-  fi
+  [[ -f "$ENV_FILE" ]] || die "Env file not found: $ENV_FILE"
   RUN_ARGS+=( --env-file "$ENV_FILE" )
 fi
 
 if [[ -n "$NETWORK" ]]; then
-  # Create network if it doesn't exist
   if ! docker network inspect "$NETWORK" >/dev/null 2>&1; then
     step "3a/6" "Creating network '${NETWORK}'"
     docker network create "$NETWORK" >/dev/null
@@ -113,51 +131,46 @@ if [[ "$DETACH" -eq 1 ]]; then
   RUN_ARGS+=( -d )
 fi
 
-# Optional basic healthcheck: (Empirica doesn't expose a dedicated /health by default)
-# We'll curl the root path. Disable with --no-healthcheck.
-if [[ "$HEALTHCHECK" -eq 1 ]]; then
-  RUN_ARGS+=( --health-cmd "curl -fsS http://localhost:${PORT}/ || exit 1"
-              --health-interval 15s
-              --health-timeout 5s
-              --health-retries 8 )
+# Optional INTERNAL Docker healthcheck (requires curl inside image)
+if [[ "$INTERNAL_DOCKER_HEALTHCHECK" -eq 1 ]]; then
+  RUN_ARGS+=(
+    --health-cmd "curl -fsS http://localhost:${PORT}/ || exit 1"
+    --health-interval 15s
+    --health-timeout 5s
+    --health-retries 8
+  )
 fi
 
 # -------- 4/ Run container --------
 step "4/6" "Starting container ${NAME} on port ${PORT}"
-docker run "${RUN_ARGS[@]}" "${IMAGE}"
-
-# If attached mode (no --detach), we stop here; logs will stream to tty.
-if [[ "$DETACH" -eq 0 ]]; then
-  step "5/6" "Container started in attached mode. Press Ctrl+C to stop."
-  # If healthcheck is enabled but we're attached, we can still tail logs naturally.
-  # Exiting here keeps the container running until Ctrl+C.
-  exit 0
+if [[ "$DETACH" -eq 1 ]]; then
+  docker run "${RUN_ARGS[@]}" "${IMAGE}"
+else
+  echo "====> Attached mode: press Ctrl+C to stop the container."
+  # Replace the current process so Ctrl+C works naturally
+  exec docker run "${RUN_ARGS[@]}" "${IMAGE}"
 fi
 
-# -------- 5/ Post-start verification (when detached) --------
-if [[ "$HEALTHCHECK" -eq 1 ]]; then
-  step "5/6" "Waiting for container to become healthy..."
-  # Wait (up to ~3 minutes) for healthy status
-  MAX_TRIES=24
-  for i in $(seq 1 $MAX_TRIES); do
-    STATUS="$(docker inspect --format='{{json .State.Health.Status}}' "${NAME}" 2>/dev/null | tr -d '"')"
-    if [[ "$STATUS" == "healthy" ]]; then
-      echo "====> Container is healthy."
-      break
-    fi
-    sleep 7
-    if [[ $i -eq $MAX_TRIES ]]; then
-      echo "!!! WARNING: Container did not report healthy in time. Check logs:"
-      echo "    docker logs -f ${NAME}"
-    fi
-  done
-else
-  step "5/6" "Healthcheck disabled; doing a simple HTTP check..."
-  # Try a simple curl to the mapped port on localhost
+# If we reached here, we are detached.
+
+# -------- 5/ Post-start verification (detached) --------
+if [[ "$EXTERNAL_HEALTHCHECK" -eq 1 ]]; then
+  step "5/6" "Waiting for service to respond on http://localhost:${PORT}/ ..."
   if command -v curl >/dev/null 2>&1; then
-    if ! curl -fsS "http://localhost:${PORT}/" >/dev/null 2>&1; then
-      echo "!!! WARNING: HTTP check failed on http://localhost:${PORT}/"
-    fi
+    MAX_TRIES=30
+    for i in $(seq 1 $MAX_TRIES); do
+      if curl -fsS "http://localhost:${PORT}/" >/dev/null 2>&1; then
+        echo "====> Service is responding."
+        break
+      fi
+      sleep 2
+      if [[ $i -eq $MAX_TRIES ]]; then
+        echo "!!! WARNING: Service did not respond in time. Check logs:"
+        echo "    docker logs -f ${NAME}"
+      fi
+    done
+  else
+    echo "Note: 'curl' not found on host; skipping external readiness check."
   fi
 fi
 

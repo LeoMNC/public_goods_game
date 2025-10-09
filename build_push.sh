@@ -13,80 +13,100 @@
 
 set -euo pipefail
 
+# ---------- Config ----------
 DEFAULT_USER="marghetislab"
 DEFAULT_TAG="v1"
-DOCKER_USER="${1:-$DEFAULT_USER}"
-TAG="${2:-$DEFAULT_TAG}"
-FULL_CLEAN="${3:-}"
-
-IMAGE="${DOCKER_USER}/public-goods-game"
-PLATFORMS="linux/amd64"   # add ,linux/arm64 if you want
 BUILDER="multi-builder"
 
-# enable BuildKit
+# Allow override via env, e.g. PLATFORMS="linux/amd64,linux/arm64"
+PLATFORMS_VAL="${PLATFORMS:-linux/amd64}"
+
+# Enable BuildKit
 export DOCKER_BUILDKIT=1
 
 step() { echo "[$1] ⇒ $2"; }
 
-# 0/ Optional: aggressive Docker cleanup (matches your original script) — opt-in only
-if [[ "${FULL_CLEAN:-}" == "--full-clean" ]]; then
-  step "0/7" "Stopping & removing all containers..."
-  docker stop $(docker ps -aq)       >/dev/null 2>&1 || true
-  docker rm -f $(docker ps -aq)      >/dev/null 2>&1 || true
+# ---------- Args ----------
+# Accept positional args but allow auto-detected Docker Hub username
+CLI_USER="${1:-}"
+TAG="${2:-$DEFAULT_TAG}"
+FULL_CLEAN="${3:-}"
 
-  step "1/7" "Removing all images..."
-  docker rmi -f $(docker images -aq) >/dev/null 2>&1 || true
-
-  step "2/7" "Pruning volumes, networks, and build cache..."
-  docker volume prune -f             >/dev/null 2>&1 || true
-  docker network prune -f            >/dev/null 2>&1 || true
-  docker builder prune -a --force    >/dev/null 2>&1 || true
-else
-  step "0/7" "Skipping destructive Docker cleanup (pass --full-clean to enable)"
-fi
-
-# 3/ Verify Docker daemon
+# ---------- Pre-flight: Docker daemon ----------
+step "0/8" "Checking Docker daemon..."
 if ! docker info >/dev/null 2>&1; then
   echo "Error: Docker daemon is not running. Did you forget to launch Docker?" >&2
   exit 1
 fi
 
-# 4/ Verify Empirica CLI
-step "3/7" "Verifying Empirica CLI..."
+# ---------- Compute Docker user (CLI > logged-in > default) ----------
+AUTO_USER="$(docker info --format '{{.Username}}' 2>/dev/null || true)"
+if [[ -z "$AUTO_USER" ]]; then
+  AUTO_USER="$DEFAULT_USER"
+fi
+DOCKER_USER="${CLI_USER:-$AUTO_USER}"
+
+# ---------- Readonly guards ----------
+readonly DEFAULT_USER DEFAULT_TAG BU ILDER PLATFORMS_VAL
+readonly TAG FULL_CLEAN DOCKER_USER
+
+IMAGE="${DOCKER_USER}/public-goods-game"
+CACHE_REF="${IMAGE}:cache"
+
+# ---------- Optional destructive cleanup ----------
+if [[ "${FULL_CLEAN:-}" == "--full-clean" ]]; then
+  step "1/8" "Stopping & removing all containers..."
+  docker stop $(docker ps -aq)       >/dev/null 2>&1 || true
+  docker rm -f $(docker ps -aq)      >/dev/null 2>&1 || true
+
+  step "2/8" "Removing all images..."
+  docker rmi -f $(docker images -aq) >/dev/null 2>&1 || true
+
+  step "3/8" "Pruning volumes, networks, and build cache..."
+  docker volume prune -f             >/dev/null 2>&1 || true
+  docker network prune -f            >/dev/null 2>&1 || true
+  docker builder prune -a --force    >/dev/null 2>&1 || true
+else
+  step "1/8" "Skipping destructive Docker cleanup (pass --full-clean to enable)"
+fi
+
+# ---------- Verify Empirica CLI ----------
+step "4/8" "Verifying Empirica CLI..."
 if ! command -v empirica >/dev/null 2>&1; then
   echo "Error: empirica CLI not found. Install with: curl https://install.empirica.dev | sh -s" >&2
   exit 1
 fi
 
-# 5/ Bundle Empirica app
-step "4/7" "Bundling experiment with empirica bundle..."
-# Clean previous bundles this script might have created
+# ---------- Verify required files ----------
+[[ -f Dockerfile.empirica ]] || { echo "Error: Dockerfile.empirica not found."; exit 1; }
+
+# ---------- Bundle Empirica app ----------
+step "5/8" "Bundling experiment with empirica bundle..."
 mkdir -p dist
 shopt -s nullglob
-for f in dist/*.tar.zst; do rm -f "$f"; done
+rm -f dist/*.tar.zst
 
 if ! empirica bundle; then
   echo "!!! ERROR: empirica bundle failed !!!" >&2
   exit 1
 fi
 
-NEWEST_BUNDLE="$(ls -t *.tar.zst 2>/dev/null | head -n 1 || true)"
+NEWEST_BUNDLE="$(ls -t ./*.tar.zst 2>/dev/null | head -n 1 || true)"
 if [[ -z "${NEWEST_BUNDLE}" ]]; then
   echo "!!! ERROR: No bundle (*.tar.zst) found after bundling !!!" >&2
   exit 1
 fi
 
 TAGGED_BUNDLE="dist/empirica-bundle-${TAG}.tar.zst"
-cp -f "${NEWEST_BUNDLE}" "${TAGGED_BUNDLE}"
-echo "====> Created bundle: ${TAGGED_BUNDLE}"
-
+cp -f -- "${NEWEST_BUNDLE}" "${TAGGED_BUNDLE}"
 if [[ ! -s "${TAGGED_BUNDLE}" ]]; then
   echo "!!! ERROR: Bundle file is empty or missing: ${TAGGED_BUNDLE} !!!" >&2
   exit 1
 fi
+echo "====> Created bundle: ${TAGGED_BUNDLE}"
 
-# 6/ Ensure Buildx builder
-step "5/7" "Verifying Buildx builder '${BUILDER}'"
+# ---------- Ensure Buildx builder ----------
+step "6/8" "Verifying Buildx builder '${BUILDER}'"
 if ! docker buildx inspect "${BUILDER}" &>/dev/null; then
   echo "====> Creating builder '${BUILDER}'..."
   docker buildx create --name "${BUILDER}" --driver docker-container --use
@@ -94,17 +114,20 @@ else
   docker buildx use "${BUILDER}"
 fi
 
-# 7/ Build & push image with cache
-CACHE_REF="${IMAGE}:cache"
-step "6/7" "Building and pushing ${IMAGE}:${TAG} for ${PLATFORMS}"
+# ---------- Build & push (with cache) ----------
+step "7/8" "Building and pushing ${IMAGE}:${TAG} for ${PLATFORMS_VAL}"
+
 BUILD_LOG="$(mktemp)"
+cleanup() { rm -f "$BUILD_LOG"; }
+trap cleanup EXIT
 
 set +e
 docker buildx build \
   --builder "${BUILDER}" \
-  --platform "${PLATFORMS}" \
+  --platform "${PLATFORMS_VAL}" \
   --tag "${IMAGE}:${TAG}" \
   --push \
+  --pull \
   --cache-from=type=registry,ref="${CACHE_REF}" \
   --cache-to=type=registry,ref="${CACHE_REF}",mode=max \
   --build-arg BUNDLE_FILE="${TAGGED_BUNDLE}" \
@@ -118,21 +141,23 @@ if [[ $STATUS -ne 0 ]]; then
   echo "============================================================" >&2
   echo "!!! BUILD OR PUSH FAILED !!!" >&2
   echo "============================================================" >&2
-  grep -E 'error: no such object|push access denied|no basic auth credentials|denied: requested access' "$BUILD_LOG" >&2 || echo "Unknown error" >&2
-  rm -f "$BUILD_LOG"
+  if ! grep -E 'error: no such object|push access denied|no basic auth credentials|denied: requested access' "$BUILD_LOG" >&2; then
+    echo "--- tail of build log ---" >&2
+    tail -n 50 "$BUILD_LOG" >&2
+  fi
   exit 1
 fi
-rm -f "$BUILD_LOG"
 
-# 8/ Verify remote
-step "7/7" "Verifying & reporting"
-REMOTE_DIGEST=$(docker buildx imagetools inspect "${IMAGE}:${TAG}" --format '{{.Manifest.Digest}}' 2>/dev/null || true)
-
-if [[ -n "$REMOTE_DIGEST" ]]; then
-  echo "====> Successfully pushed: ${IMAGE}@${REMOTE_DIGEST}"
+# ---------- Verify remote image ----------
+step "8/8" "Verifying & reporting"
+if docker buildx imagetools inspect "${IMAGE}:${TAG}" >/dev/null 2>&1; then
+  DIGEST="$(docker buildx imagetools inspect "${IMAGE}:${TAG}" --format '{{.Manifest.Digest}}' 2>/dev/null || true)"
+  [[ -n "$DIGEST" ]] && echo "====> Successfully pushed: ${IMAGE}@${DIGEST}"
   echo "====> Image tag: ${IMAGE}:${TAG}"
+  echo "====> Platforms: ${PLATFORMS_VAL}"
+  echo "====> Registry user: ${DOCKER_USER}"
   echo "All done!"
 else
-  echo "!!! ERROR: Image was not found in registry via imagetools inspect !!!" >&2
+  echo "!!! ERROR: Image not found in registry via imagetools inspect !!!" >&2
   exit 1
 fi
