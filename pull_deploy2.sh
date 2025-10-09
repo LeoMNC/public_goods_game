@@ -3,15 +3,15 @@
 # Pull a prebuilt Empirica Docker image and deploy it as a container.
 #
 # Usage:
-#   ./pull_deploy.sh [<docker-user>] [<tag>] [--port <port>] [--name <container-name>] \
-#       [--env-file <path>] [--network <net>] [--volume <host:ctr>]... \
-#       [--detach] [--no-healthcheck] [--docker-healthcheck] [--skip-pull]
+#   ./pull_deploy.sh [<docker-user>|<tag>] [<tag>] [--user <user>] [--tag <tag>] \
+#       [--port <port>] [--name <container-name>] [--env-file <path>] [--network <net>] \
+#       [--volume <host:ctr>]... [--detach] [--no-healthcheck] [--docker-healthcheck] [--skip-pull]
 #
 # Notes:
 # - Default CMD should run Empirica, e.g.: empirica serve /app/bundle.tar.zst
 # - By default we perform an EXTERNAL readiness check from the host.
-#   Use --docker-healthcheck to set a Docker healthcheck that runs INSIDE the container
-#   (requires curl inside the image).
+#   Use --docker-healthcheck to set a Docker healthcheck INSIDE the container (requires curl in image).
+
 set -euo pipefail
 
 # -------- Defaults --------
@@ -24,29 +24,28 @@ DEFAULT_PORT="3000"
 step() { echo "[$1] ⇒ $2"; }
 die()  { echo "ERROR: $*" >&2; exit 1; }
 
-# -------- Arg pre-scan (flags-first friendly) --------
-# If first/second params look like flags, don't treat them as user/tag.
+# -------- Parse positionals for user/tag (flags can override later) --------
 ARG1="${1:-}"
 ARG2="${2:-}"
-if [[ -n "${ARG1}" && "${ARG1}" != --* ]]; then
-  DOCKER_USER="${ARG1}"
-  shift
+
+POS_USER=""
+POS_TAG=""
+CONSUME=0
+
+if [[ -z "$ARG1" || "$ARG1" == --* ]]; then
+  CONSUME=0
+elif [[ "$ARG1" =~ ^v[0-9] ]]; then
+  POS_TAG="$ARG1"; CONSUME=1
 else
-  DOCKER_USER=""  # will be resolved below
-fi
-if [[ -n "${ARG2}" && "${ARG2}" != --* && -n "${DOCKER_USER:-}" ]]; then
-  TAG="${ARG2}"
-  shift
-else
-  TAG=""
+  POS_USER="$ARG1"; CONSUME=1
+  if [[ -n "${ARG2:-}" && "$ARG2" != --* ]]; then
+    POS_TAG="$ARG2"; CONSUME=2
+  fi
 fi
 
-# Resolve DOCKER_USER via CLI > logged-in > default
-if [[ -z "${DOCKER_USER:-}" ]]; then
-  AUTO_USER="$(docker info --format '{{.Username}}' 2>/dev/null || true)"
-  DOCKER_USER="${AUTO_USER:-$DEFAULT_USER}"
-fi
-TAG="${TAG:-$DEFAULT_TAG}"
+# Consume the positionals we interpreted
+if [[ $CONSUME -ge 1 ]]; then shift; fi
+if [[ $CONSUME -ge 2 ]]; then shift; fi
 
 # -------- Remaining flags --------
 PORT="$DEFAULT_PORT"
@@ -58,24 +57,36 @@ DETACH=0
 EXTERNAL_HEALTHCHECK=1
 INTERNAL_DOCKER_HEALTHCHECK=0
 SKIP_PULL=0
+FLAG_USER=""
+FLAG_TAG=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --port)             PORT="${2:?missing value for --port}"; shift 2 ;;
-    --name)             NAME="${2:?missing value for --name}"; shift 2 ;;
-    --env-file)         ENV_FILE="${2:?missing value for --env-file}"; shift 2 ;;
-    --network)          NETWORK="${2:?missing value for --network}"; shift 2 ;;
-    --volume)           VOLUMES+=("${2:?missing value for --volume}"); shift 2 ;;
-    --detach)           DETACH=1; shift ;;
-    --no-healthcheck)   EXTERNAL_HEALTHCHECK=0; INTERNAL_DOCKER_HEALTHCHECK=0; shift ;;
-    --docker-healthcheck) INTERNAL_DOCKER_HEALTHCHECK=1; EXTERNAL_HEALTHCHECK=0; shift ;;
-    --skip-pull)        SKIP_PULL=1; shift ;;
-    --)                 shift; break ;;
-    *)                  die "Unknown option: $1" ;;
+    --user)              FLAG_USER="${2:?missing value for --user}"; shift 2 ;;
+    --tag)               FLAG_TAG="${2:?missing value for --tag}"; shift 2 ;;
+    --port)              PORT="${2:?missing value for --port}"; shift 2 ;;
+    --name)              NAME="${2:?missing value for --name}"; shift 2 ;;
+    --env-file)          ENV_FILE="${2:?missing value for --env-file}"; shift 2 ;;
+    --network)           NETWORK="${2:?missing value for --network}"; shift 2 ;;
+    --volume)            VOLUMES+=("${2:?missing value for --volume}"); shift 2 ;;
+    --detach)            DETACH=1; shift ;;
+    --no-healthcheck)    EXTERNAL_HEALTHCHECK=0; INTERNAL_DOCKER_HEALTHCHECK=0; shift ;;
+    --docker-healthcheck)INTERNAL_DOCKER_HEALTHCHECK=1; EXTERNAL_HEALTHCHECK=0; shift ;;
+    --skip-pull)         SKIP_PULL=1; shift ;;
+    --)                  shift; break ;;
+    *)                   die "Unknown option: $1" ;;
   esac
 done
 
+# -------- Resolve user/tag precedence: flags > positionals > defaults --------
+DOCKER_USER="${FLAG_USER:-${POS_USER:-$DEFAULT_USER}}"
+TAG="${FLAG_TAG:-${POS_TAG:-$DEFAULT_TAG}}"
+
 IMAGE="${DOCKER_USER}/public-goods-game:${TAG}"
+
+echo "🧭 Using Docker Hub namespace: ${DOCKER_USER}"
+echo "🏷  Image tag: ${TAG}"
+echo "📦 Image ref: ${IMAGE}"
 
 # -------- 0/ Verify docker --------
 step "0/6" "Checking Docker daemon"
@@ -147,11 +158,8 @@ if [[ "$DETACH" -eq 1 ]]; then
   docker run "${RUN_ARGS[@]}" "${IMAGE}"
 else
   echo "====> Attached mode: press Ctrl+C to stop the container."
-  # Replace the current process so Ctrl+C works naturally
   exec docker run "${RUN_ARGS[@]}" "${IMAGE}"
 fi
-
-# If we reached here, we are detached.
 
 # -------- 5/ Post-start verification (detached) --------
 if [[ "$EXTERNAL_HEALTHCHECK" -eq 1 ]]; then

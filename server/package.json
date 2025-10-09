@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "esbuild": "^0.14.47"
+    "esbuild": "^0.14.54"
   },
   "scripts": {
     "build": "rsync -aP --exclude=node_modules --exclude=*.js -m src/* dist/ && esbuild src/index.js --color=true --log-level=warning --platform=node --define:process.env.NODE_ENV='\"production\"' --bundle --minify --outfile=dist/index.js --sourcemap",
@@ -15,7 +15,7 @@
     "serve": "node --trace-warnings --enable-source-maps --unhandled-rejections=warn-with-error-code index.js"
   },
   "volta": {
-    "node": "20.11.1",
-    "npm": "10.2.4"
+    "node": "20.19.5",
+    "npm": "11.6.2"
   }
 }
