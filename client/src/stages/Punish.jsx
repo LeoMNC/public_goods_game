@@ -83,7 +83,7 @@ function usePunish() {
   const tokens = player.get("tokens") || 0;
   const disabled = cost > tokens;
   const penaltyMap = Object.fromEntries(
-    punishedIds.map((id) => [id, PUNISH_MULTIPLIER])
+    punishedIds.map((id) => [id, 1])
   );
   
   const togglePunish = useCallback((playerId) => {

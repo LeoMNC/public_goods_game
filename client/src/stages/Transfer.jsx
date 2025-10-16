@@ -4,6 +4,62 @@ import { usePlayer, usePlayers } from "@empirica/core/player/classic/react";
 import { Scoreboard } from "../components/Scoreboard";
 import stage5Img from "../stages/Stage5Transfers.png";
 
+
+
+export function Transfer() {
+  const {
+    player,
+    players,
+    transfers,
+    totalTransfer,
+    playerTokens,
+    error,
+    handleTransferChange,
+    handleSubmit,
+  } = useTransfer();
+  if (!player) return <div className="p-6 text-center">Loading…</div>;
+  return (
+    <div className="text-center mt-3 sm:mt-5 p-20">
+
+      <Scoreboard />
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6 max-w-2xl mx-auto">
+        <h3 className="text-xl font-bold text-blue-800 mb-2">How Transferring Works</h3>
+        <p><strong>Each token you transfer</strong> costs <strong>1 token</strong> from your total.</p>
+        <p>You can send <strong>up to 5 tokens</strong> to each player.</p>
+        <p><strong>Remember:</strong> You can only transfer <strong>once per round</strong>, 
+          but you're free to select <strong>as many players</strong> as you like 
+          (as long as you can afford the cost).
+        </p>
+      </div>
+      <form onSubmit={handleSubmit}>
+        <div className="mt-6">
+          <h1 className="text-lg font-bold mb-2">Which players would you like to transfer tokens to?</h1>
+          <TransferList
+            player={player}
+            players={players}
+            transfers={transfers}
+            onChange={handleTransferChange}
+          />
+          <div className="mt-6 bg-gray-50 p-4 rounded-lg inline-block">
+            <p className="font-medium">
+              <strong>Transfer Total:</strong> {totalTransfer} tokens
+            </p>
+            {error && <p className="text-red-600 font-bold">{error}</p>}
+            <button
+              type="submit"
+              disabled={totalTransfer > playerTokens}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Transfer
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 function useTransfer() {
   const player = usePlayer();
   const players = usePlayers() || [];
@@ -50,10 +106,10 @@ function useTransfer() {
     Object.entries(transfers)
       .filter(([_, amount]) => amount > 0)
       .forEach(([recipientId, amount]) => {
-        const rec = players.find((p) => p.id === recipientId);
-        if (rec) {
-          const prevReceived = rec.round.get("transfersReceived") || 0;
-          rec.round.set("transfersReceived", prevReceived + Number(amount));
+        const recipient = players.find((p) => p.id === recipientId);
+        if (recipient) {
+          const prevReceived = recipient.round.get("transfersReceived") || 0;
+          recipient.round.set("transfersReceived", prevReceived + Number(amount));
         }
       });
     player.stage.set("submit", true);
@@ -106,81 +162,3 @@ function TransferList({ player, players, transfers, onChange }) {
     );
   }
 
-export function Transfer() {
-  const {
-    player,
-    players,
-    transfers,
-    totalTransfer,
-    playerTokens,
-    error,
-    handleTransferChange,
-    handleSubmit,
-  } = useTransfer();
-  if (!player) return <div className="p-6 text-center">Loading…</div>;
-  return (
-    <div className="text-center mt-3 sm:mt-5 p-20">
-
-      <Scoreboard />
-
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6 max-w-2xl mx-auto">
-        <h3 className="text-xl font-bold text-blue-800 mb-2">How Transferring Works</h3>
-        <p><strong>Each token you transfer</strong> costs <strong>1 token</strong> from your total.</p>
-        <p>You can send <strong>up to 5 tokens</strong> to each player.</p>
-        <p><strong>Remember:</strong> You can only transfer <strong>once per round</strong>, 
-          but you're free to select <strong>as many players</strong> as you like 
-          (as long as you can afford the cost).
-        </p>
-      </div>
-      <form onSubmit={handleSubmit}>
-        <div className="mt-6">
-          <h1 className="text-lg font-bold mb-2">Which players would you like to transfer tokens to?</h1>
-          <div className="flex flex-col space-y-2 max-w-md mx-auto">
-            <ul className="flex flex-col space-y-2 max-w-md mx-auto">
-              {players
-                .filter((p) => p.id !== player?.id)
-                .map((player) => (
-                  <li key={player.id} className="flex items-center gap-2">
-                    <label htmlFor={`transfer-${player.id}`}>
-                      {player.get("name")}
-                    </label>
-                    <input
-                      type="number"
-                      id={`transfer-${player.id}`}
-                      min="0"
-                      max="5"
-                      value={transfers[player.id] || 0}
-                      onChange={(e) =>
-                        handleTransferChange(
-                          player.id,
-                          Number(e.target.value)
-                        )
-                      }
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") { e.preventDefault();}
-                      }}
-                      className="w-16 border rounded px-2"
-                    />
-                  </li>
-                ))
-              }
-            </ul>
-                <div className="mt-6 bg-gray-50 p-4 rounded-lg inline-block">
-                  <p className="font-medium">
-                    <strong>Transfer Total:</strong> {totalTransfer} tokens
-                  </p>
-                  {error && <p className="text-red-600 font-bold">{error}</p>}
-                  <button
-                    type="submit"
-                    disabled={totalTransfer > playerTokens}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Transfer
-                  </button>
-                </div>
-            </div>
-          </div>
-        </form>
-      </div>
-  );
-}

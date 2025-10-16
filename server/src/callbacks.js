@@ -1,11 +1,13 @@
 // server/src/callbacks.js
 import { ClassicListenersCollector } from "@empirica/core/admin/classic";
 export const Empirica = new ClassicListenersCollector();
-const PUNISH_MULTIPLIER = 5;           // (kept for your logic, see note below)
-const CONTRIBUTION_MULTIPLIER = 2;
 
 import path from "path"; // ensure path is imported for the init handler
 
+const numPracticeRounds = 1;           // Optional practice round
+const PUNISH_MULTIPLIER = 5;
+const CONTRIBUTION_MULTIPLIER = 2;
+const initialTokens = 10;               // Initial tokens per player
 // Game Start
 Empirica.onGameStart(({ game }) => {
   console.log("[GameStart] Game started");
@@ -15,7 +17,6 @@ Empirica.onGameStart(({ game }) => {
     Object.entries(treatment).map(([key, val]) => `${key}: ${val}`)
   );
   const numRounds = treatment.numRounds;
-  const numPracticeRounds = 1; // Optional practice round
   console.log(`[GameStart] Creating ${numRounds} rounds`);
 
   const stageNames = [
@@ -47,7 +48,7 @@ Empirica.onRoundStart(({ round }) => {
   console.log(`[RoundStart] Round started: ${round.get("name")}`);
   const players = round.currentGame.players;
   players.forEach((p) => {
-    p.set("tokens", 10);
+    p.set("tokens", initialTokens);
     p.round.set("monitoredPlayers", []);
     p.round.set("transfersSent", 0);
     p.round.set("transfersReceived", 0);
@@ -56,7 +57,7 @@ Empirica.onRoundStart(({ round }) => {
     p.round.set("givenPunishments", []);
     p.round.set("punishmentReceived", 0);
     console.log(
-      `[RoundStart] Player ${p.get("name")} balance reset to 10 tokens for new round.`
+      `[RoundStart] Player ${p.get("name")} balance reset to ${initialTokens} tokens for new round.`
     );
   });
 });
@@ -164,33 +165,27 @@ Empirica.onStageEnded(({ stage }) => {
         p.set("tokens", newTokens);
         p.round.set("punishCost", punishCost);
         console.log(
-          `[StageEnd] Player ${p.get("name")} paid ${punishCost} token${punishCost !== 1 ? "s" : ""} for punishing, ` +
-          `new balance: ${newTokens}`
+          `[StageEnd] Player ${p.get("name")} punished ${given.length} player${given.length !== 1 ? "s" : ""}, ` +
+          `cost: ${punishCost}, new balance: ${newTokens}`
         );
       });
 
-      // 2) Apply penalties to targets NOW (moved from credits stage)
       const punishmentTotals = {};
       players.forEach(p => { punishmentTotals[p.id] = 0; });
-
       players.forEach(punisher => {
         const penaltyMap = punisher.round.get("penaltyMap") || {};
         for (const [targetId, amountRaw] of Object.entries(penaltyMap)) {
           const amount = Number(amountRaw) || 0;
-          // If you intended to use PUNISH_MULTIPLIER on targets, uncomment next line:
-          // const penalty = amount * PUNISH_MULTIPLIER;
-          const penalty = amount; // preserving your current behavior
+          const penalty = amount * PUNISH_MULTIPLIER;
           if (punishmentTotals[targetId] !== undefined) {
             punishmentTotals[targetId] += penalty;
           }
         }
-      });
-
-      console.log("[StageEnd] Punishment Totals:", punishmentTotals);
-
+      }
+    );
       players.forEach(p => {
         const punishment = Number(punishmentTotals[p.id] || 0);
-        p.round.set("punishmentPenalty", punishment);
+        p.round.set("punishmentReceived", punishment);
         if (punishment > 0) {
           const currentTokens = Number(p.get("tokens") || 0);
           const newTokens = Math.max(0, currentTokens - punishment);
@@ -208,25 +203,36 @@ Empirica.onStageEnded(({ stage }) => {
     case "transfer": {
       console.log("[StageEnd] Processing transfers...");
       // 1) Deduct senders
-      players.forEach((p) => {
-        const sent = Number(p.round.get("transfersSent") || 0);
-        const currentTokens = Number(p.get("tokens") || 0);
-        const postTransferSentTokens = Math.max(0, currentTokens - sent);
-        p.set("tokens", postTransferSentTokens);
-        console.log(
-          `[StageEnd] Player ${p.get("name")} sent ${sent} tokens, new balance: ${postTransferSentTokens}`
-        );
-      });
+      const aggregateReceived = {};
+      players.forEach((p) => (aggregateReceived[p.id] = 0));
 
-      // 2) Credit recipients NOW (moved from credits stage)
-      players.forEach(p => {
-        const rec = Number(p.round.get("transfersReceived") || 0);
-        if (rec > 0) {
-          const currentTokens = Number(p.get("tokens") || 0);
-          const newTokens = currentTokens + rec;
-          p.set("tokens", newTokens);
+      players.forEach((sender) => {
+        const map = sender.round.get("transferMap") || {};
+        const sent = Object.values(map).reduce((s, v) => s + Number(v || 0), 0);
+        const currentTokens = Number(sender.get("tokens") || 0);
+        const postTransferSentTokens = Math.max(0, currentTokens - sent);
+        sender.set("tokens", postTransferSentTokens);
+        for (const [rid, amtRaw] of Object.entries(map)) {
+          const amt = Number(amtRaw) || 0;
+          if (aggregateReceived[rid] != null) aggregateReceived[rid] += amt;
+        }
+
+        if (sent > 0) {
           console.log(
-            `[StageEnd] Player ${p.get("name")} received transfers now: +${rec}, new tokens: ${newTokens}`
+            `[StageEnd] Player ${sender.get("name")} sent ${sent} token${sent !== 1 ? "s" : ""}`
+          );
+        }
+      });
+      players.forEach((recipient) => {
+        const receivedThusFar = aggregateReceived[recipient.id] || 0;
+        recipient.round.set("transfersReceived", receivedThusFar);
+        if (receivedThusFar > 0) {
+          const currentTokens = Number(recipient.get("tokens") || 0);
+          const newTokens = currentTokens + receivedThusFar;
+          recipient.set("tokens", newTokens);
+          console.log(
+            `[StageEnd] Player ${recipient.get("name")} received ${receivedThusFar} transfer` +
+            `${receivedThusFar !== 1 ? "s" : ""}`
           );
         }
       });
