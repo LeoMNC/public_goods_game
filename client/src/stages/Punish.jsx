@@ -9,13 +9,13 @@ import stage4Img from "../stages/Stage4Punishment.png";
 const PUNISH_MULTIPLIER = 5;
 
 export function usePunishment() {
-  const currentPlayer = usePlayer();
-  if (!currentPlayer) {
-    return <div className="p-6 text-center">Loading…</div>;
-  }
+  const player = usePlayer();
   const players = usePlayers() || [];
   const [punishedIds, setPunishedIds] = useState([]);
   const [error, setError] = useState(null);
+  if (!player) {
+    return <div className="p-6 text-center">Loading…</div>;
+  }
 
   const cost = punishedIds.length;
   const penaltyMap = Object.fromEntries(
@@ -42,16 +42,16 @@ export function usePunishment() {
     }
 
   // Just record the punishment, don't deduct tokens here
-    currentPlayer.round.set("givenPunishments", punishedIds);
-    currentPlayer.round.set("punishCost", cost);
-    currentPlayer.round.set("penaltyMap", penaltyMap);
+    player.round.set("givenPunishments", punishedIds);
+    player.round.set("punishCost", cost);
+    player.round.set("penaltyMap", penaltyMap);
 
 
-    currentPlayer.stage.set("submit", true);
+    player.stage.set("submit", true);
 
     setPunishedIds([]);
     setError(null);
-  }, [currentPlayer, punishedIds, cost, penaltyMap]);
+  }, [player, punishedIds, cost, penaltyMap]);
 
   return {
     players,
@@ -67,9 +67,9 @@ export function usePunishment() {
 function PunishmentComponent() {
   const { players, punishedIds, error, cost, penaltyMap, togglePunish, submitPunishment } =
     usePunishment();
-  const currentPlayer = usePlayer();
+  const player = usePlayer();
 
-  const tokens = currentPlayer.get("tokens") || 0;
+  const tokens = player.get("tokens") || 0;
   const disabled = cost > tokens;
 
   return (
