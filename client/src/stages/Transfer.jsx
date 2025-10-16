@@ -4,31 +4,26 @@ import { usePlayer, usePlayers } from "@empirica/core/player/classic/react";
 import { Scoreboard } from "../components/Scoreboard";
 import stage5Img from "../stages/Stage5Transfers.png";
 
-
-export function Transfer() {
+function useTransfer() {
+  const player = usePlayer();
   const players = usePlayers() || [];
-  const currentPlayer = usePlayer();
-  if (!currentPlayer) {
-    return <div className="p-6 text-center">Loading…</div>;
-  }
   const [transfers, setTransfers] = useState({});
   const [error, setError] = useState(null);
   const didInit = useRef(false);
 
   // Initialize zero‐transfers for all other players
   useEffect(() => {
-    if (didInit.current) return;
-    const initialTransfers = players.reduce((acc, player) => {
-      if (player.id !== currentPlayer.id) {
-        acc[player.id] = 0;
+    if (didInit.current || !player) return;
+    const initialTransfers = players.reduce((acc, p) => {
+      if (player.id !== p.id) {
+        acc[p.id] = 0;
       }
       return acc;
     }, {});
     setTransfers(initialTransfers);
     didInit.current = true;
-  }, [players, currentPlayer]);
+  }, [players, player]);
 
-  // Only allow 0–5 tokens per recipient
   const handleTransferChange = (playerId, amount) => {
     if (amount === "") {
       setTransfers((prev) => ({ ...prev, [playerId]: 0 }));
@@ -39,46 +34,90 @@ export function Transfer() {
     setTransfers((prev) => ({ ...prev, [playerId]: clamped }));
   };
 
-  // Sum of all specified transfers
   const totalTransfer = Object.values(transfers).reduce(
     (sum, val) => sum + (val || 0),
     0
   );
-  const playerTokens = currentPlayer.get("tokens") || 0;
-
-  const handleTransferClick = (e) => {
+  const playerTokens = player?.get("tokens") || 0;
+  const handleSubmit = (e) => {
     e?.preventDefault();
+    if (!player) return;
     if (totalTransfer > playerTokens) {
       setError("Insufficient tokens");
       return;
     }
-
-    // 1) Record how much this player sent
-    currentPlayer.round.set("transfersSent", totalTransfer);
-
-    // 2) Update each recipient's received total
+    player.round.set("transfersSent", totalTransfer);
     Object.entries(transfers)
       .filter(([_, amount]) => amount > 0)
-      .forEach(([recipient, amount]) => {
-        const recPlayer = players.find((p) => p.id === recipient);
-        if (recPlayer) {
-          const prevReceived =
-            recPlayer.round.get("transfersReceived") || 0;
-          recPlayer.round.set(
-            "transfersReceived",
-            prevReceived + Number(amount)
-          );
+      .forEach(([recipientId, amount]) => {
+        const rec = players.find((p) => p.id === recipientId);
+        if (rec) {
+          const prevReceived = rec.round.get("transfersReceived") || 0;
+          rec.round.set("transfersReceived", prevReceived + Number(amount));
         }
       });
-
-    // Advance to next stage
-    currentPlayer.stage.set("submit", true);
-
-    // Reset local state
-    setTransfers({});
+    player.stage.set("submit", true);
+    // setTransfers({});
     setError(null);
   };
+  return {
+    player,
+    players,
+    transfers,
+    handleTransferChange,
+    totalTransfer,
+    playerTokens,
+    error,
+    handleSubmit
+  };
+}
 
+function TransferList({ player, players, transfers, onChange }) {
+  return (
+    <ul className="flex flex-col space-y-2 max-w-md mx-auto">
+      {players
+        .filter((p) => p.id !== player?.id)
+        .map((p) => (
+          <li key={p.id} className="flex items-center gap-2">
+            <label htmlFor={`transfer-${p.id}`} className='w-32 text-left'>
+              {p.get("name")}
+            </label>
+            <input
+              type="number"
+              id={`transfer-${p.id}`}
+              min="0"
+              max="5"
+              value={transfers[p.id] || 0}
+              onChange={(e) =>
+                onChange(
+                  p.id,
+                  Number(e.target.value)
+                )
+              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter") { e.preventDefault();}
+              }}
+              className="w-16 border rounded px-2"
+            />
+          </li>
+        ))
+      }
+    </ul>
+    );
+  }
+
+export function Transfer() {
+  const {
+    player,
+    players,
+    transfers,
+    totalTransfer,
+    playerTokens,
+    error,
+    handleTransferChange,
+    handleSubmit,
+  } = useTransfer();
+  if (!player) return <div className="p-6 text-center">Loading…</div>;
   return (
     <div className="text-center mt-3 sm:mt-5 p-20">
 
@@ -93,13 +132,13 @@ export function Transfer() {
           (as long as you can afford the cost).
         </p>
       </div>
-      <form onSubmit={handleTransferClick}>
+      <form onSubmit={handleSubmit}>
         <div className="mt-6">
           <h1 className="text-lg font-bold mb-2">Which players would you like to transfer tokens to?</h1>
           <div className="flex flex-col space-y-2 max-w-md mx-auto">
             <ul className="flex flex-col space-y-2 max-w-md mx-auto">
               {players
-                .filter((p) => p.id !== currentPlayer?.id)
+                .filter((p) => p.id !== player?.id)
                 .map((player) => (
                   <li key={player.id} className="flex items-center gap-2">
                     <label htmlFor={`transfer-${player.id}`}>
