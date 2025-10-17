@@ -165,7 +165,7 @@ Empirica.onStageEnded(({ stage }) => {
         const punishReceived = Object.entries(punishMatrix).reduce((sum, [sid, penalties]) =>
           sum + PUNISH_MULTIPLIER * (penalties[p.id] || 0), 0);
         p.round.set("punishReceived", punishReceived);
-        currentTokens = Number(p.get("tokens") || 0);
+        const currentTokens = Number(p.get("tokens") || 0);
         const newTokens = Math.max(0, currentTokens - punishReceived - punishCost);
         p.set("tokens", newTokens);
         console.log(`[StageEnd] Player ${p.get("name")} now has ${newTokens} tokens`);
