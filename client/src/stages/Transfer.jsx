@@ -103,15 +103,7 @@ function useTransfer() {
       return;
     }
     player.round.set("transfersSent", totalTransfer);
-    Object.entries(transfers)
-      .filter(([_, amount]) => amount > 0)
-      .forEach(([recipientId, amount]) => {
-        const recipient = players.find((p) => p.id === recipientId);
-        if (recipient) {
-          const prevReceived = recipient.round.get("transfersReceived") || 0;
-          recipient.round.set("transfersReceived", prevReceived + Number(amount));
-        }
-      });
+    player.round.set("transferMap", transfers);
     player.stage.set("submit", true);
     // setTransfers({});
     setError(null);
