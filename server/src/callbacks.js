@@ -160,14 +160,14 @@ Empirica.onStageEnded(({ stage }) => {
       const punishMatrix = buildMatrix(players, "penaltyMap");
       round.set("punishMatrix", punishMatrix);
       printMatrix(punishMatrix, players, "Punishment Matrix");
-      players.forEach(p => {
+      players.forEach((p) => {
         const punishCost = Number(p.round.get("punishCost") || 0);
         const punishReceived = Object.entries(punishMatrix).reduce((sum, [sid, penalties]) =>
           sum + PUNISH_MULTIPLIER * (penalties[p.id] || 0), 0);
         p.round.set("punishReceived", punishReceived);
         currentTokens = Number(p.get("tokens") || 0);
         const newTokens = Math.max(0, currentTokens - punishReceived - punishCost);
-        players.set("tokens", newTokens);
+        p.set("tokens", newTokens);
         console.log(`[StageEnd] Player ${p.get("name")} now has ${newTokens} tokens`);
       });
       break;
@@ -201,14 +201,11 @@ Empirica.onStageEnded(({ stage }) => {
         const endRoundTokens = p.get("tokens") || 0;
         const prevPoints = p.get("points") || 0;
         const newPoints = prevPoints + endRoundTokens;
-        p.set("points", newPoints);
-
         console.log(
           `[StageEnd] Player ${p.get("name")} ended the round with ${endRoundTokens} tokens.` +
-          `Previously, they had ${prevPoints} points, now updated to ${newPoints} points.`
+          `Previously, they had ${prevPoints} points, which will shortly be updated to ${newPoints} points.`
         );
-      }
-      );
+      });
       break;
     }
 

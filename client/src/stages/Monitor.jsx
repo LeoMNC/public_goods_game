@@ -43,10 +43,7 @@ export function Monitor() {
     // Set both the list of monitored players AND the cost
     player.round.set("monitoredPlayers", selectedPlayers);
     player.round.set("monitoringCost", cost);  // Explicitly set the cost
-    
-    // Deduct tokens immediately
-    player.set("tokens", currentTokens - cost);
-    
+        
     setTimeout(() => {
       player.stage.set("submit", true);
     }, 100); // wait 100ms
