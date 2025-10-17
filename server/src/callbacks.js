@@ -155,86 +155,42 @@ Empirica.onStageEnded(({ stage }) => {
     }
 
     case "punish": {
-      console.log("[StageEnd] Processing punishment (costs + targets)...");
-      // 1) Deduct punisher costs (already in your code)
-      players.forEach((p) => {
-        const given = p.round.get("givenPunishments") || [];
-        const punishCost = Number(p.round.get("punishCost") ?? given.length);
-        const currentTokens = Number(p.get("tokens") || 0);
-        const newTokens = Math.max(0, currentTokens - punishCost);
-        p.set("tokens", newTokens);
-        p.round.set("punishCost", punishCost);
-        console.log(
-          `[StageEnd] Player ${p.get("name")} punished ${given.length} player${given.length !== 1 ? "s" : ""}, ` +
-          `cost: ${punishCost}, new balance: ${newTokens}`
-        );
-      });
-
-      const punishmentTotals = {};
-      players.forEach(p => { punishmentTotals[p.id] = 0; });
-      players.forEach(punisher => {
-        const penaltyMap = punisher.round.get("penaltyMap") || {};
-        for (const [targetId, amountRaw] of Object.entries(penaltyMap)) {
-          const amount = Number(amountRaw) || 0;
-          const penalty = amount * PUNISH_MULTIPLIER;
-          if (punishmentTotals[targetId] !== undefined) {
-            punishmentTotals[targetId] += penalty;
-          }
-        }
-      }
-    );
+      console.log("[StageEnd] Processing punishment...");
+      console.log("---------- Building punishment matrix...");
+      const punishMatrix = buildMatrix(players, "penaltyMap");
+      round.set("punishMatrix", punishMatrix);
+      printMatrix(punishMatrix, players, "Punishment Matrix");
       players.forEach(p => {
-        const punishment = Number(punishmentTotals[p.id] || 0);
-        p.round.set("punishmentReceived", punishment);
-        if (punishment > 0) {
-          const currentTokens = Number(p.get("tokens") || 0);
-          const newTokens = Math.max(0, currentTokens - punishment);
-          p.set("tokens", newTokens);
-          console.log(
-            `[StageEnd] Player ${p.get("name")} punished now: -${punishment}, new tokens: ${newTokens}`
-          );
-        } else {
-          console.log(`[StageEnd] Player ${p.get("name")} received no punishment.`);
-        }
+        const punishCost = Number(p.round.get("punishCost") || 0);
+        const punishReceived = Object.entries(punishMatrix).reduce((sum, [sid, penalties]) =>
+          sum + PUNISH_MULTIPLIER * (penalties[p.id] || 0), 0);
+        p.round.set("punishReceived", punishReceived);
+        currentTokens = Number(p.get("tokens") || 0);
+        const newTokens = Math.max(0, currentTokens - punishReceived - punishCost);
+        players.set("tokens", newTokens);
+        console.log(`[StageEnd] Player ${p.get("name")} now has ${newTokens} tokens`);
       });
       break;
     }
 
     case "transfer": {
       console.log("[StageEnd] Processing transfers...");
-      // 1) Deduct senders
-      const aggregateReceived = {};
-      players.forEach((p) => (aggregateReceived[p.id] = 0));
-
-      players.forEach((sender) => {
-        const map = sender.round.get("transferMap") || {};
-        const sent = Object.values(map).reduce((s, v) => s + Number(v || 0), 0);
-        const currentTokens = Number(sender.get("tokens") || 0);
-        const postTransferSentTokens = Math.max(0, currentTokens - sent);
-        sender.set("tokens", postTransferSentTokens);
-        for (const [rid, amtRaw] of Object.entries(map)) {
-          const amt = Number(amtRaw) || 0;
-          if (aggregateReceived[rid] != null) aggregateReceived[rid] += amt;
-        }
-
-        if (sent > 0) {
-          console.log(
-            `[StageEnd] Player ${sender.get("name")} sent ${sent} token${sent !== 1 ? "s" : ""}`
-          );
-        }
-      });
-      players.forEach((recipient) => {
-        const receivedThusFar = aggregateReceived[recipient.id] || 0;
-        recipient.round.set("transfersReceived", receivedThusFar);
-        if (receivedThusFar > 0) {
-          const currentTokens = Number(recipient.get("tokens") || 0);
-          const newTokens = currentTokens + receivedThusFar;
-          recipient.set("tokens", newTokens);
-          console.log(
-            `[StageEnd] Player ${recipient.get("name")} received ${receivedThusFar} transfer` +
-            `${receivedThusFar !== 1 ? "s" : ""}`
-          );
-        }
+      console.log("---------- Building transfer matrix...");
+      const transferMatrix = buildMatrix(players, "transferMap");
+      round.set("transferMatrix", transferMatrix);
+      printMatrix(transferMatrix, players, "Transfer Matrix");
+      players.forEach(p => {
+        const transferSent = Object.values(transferMatrix[p.id]).reduce((a, b) => a + b, 0);
+        const transferReceived = players.reduce((sum, other) => sum + transferMatrix[other.id][p.id], 0);
+        p.round.set("transfersSent", transferSent);
+        p.round.set("transfersReceived", transferReceived);
+        p.round.set("netTransfer", transferReceived - transferSent);
+        const currentTokens = Number(p.get("tokens") || 0);
+        const newTokens = Math.max(0, currentTokens + transferReceived - transferSent);
+        p.set("tokens", newTokens);
+        console.log(
+          `[StageEnd] Player ${p.get("name")} now has ${newTokens} tokens `
+        );
       });
       break;
     }
@@ -242,10 +198,17 @@ Empirica.onStageEnded(({ stage }) => {
     case "credits": {
       console.log("[StageEnd] Credits stage completed (no token changes here).");
       players.forEach(p => {
+        const endRoundTokens = p.get("tokens") || 0;
+        const prevPoints = p.get("points") || 0;
+        const newPoints = prevPoints + endRoundTokens;
+        p.set("points", newPoints);
+
         console.log(
-          `[StageEnd] Player ${p.get("name")} - Tokens: ${p.get("tokens")}, Points: ${p.get("points") || 0}`
+          `[StageEnd] Player ${p.get("name")} ended the round with ${endRoundTokens} tokens.` +
+          `Previously, they had ${prevPoints} points, now updated to ${newPoints} points.`
         );
-      });
+      }
+      );
       break;
     }
 
@@ -291,3 +254,47 @@ Empirica.on("init", ({ server }) => {
     res.sendFile(path.resolve(__dirname, "../../client/build/index.html"));
   });
 });
+
+
+function buildMatrix(players, field) {
+  const ids = players.map((p) => p.id);
+  const matrix = {};
+  ids.forEach((sender) => {
+    matrix[sender] = {};
+    ids.forEach((receiver) => {
+      matrix[sender][receiver] = 0;
+    });
+  });
+  players.forEach((sender) => {
+    const map = sender.get(field) || {};
+    players.forEach((receiver) => {
+      matrix[sender.id][receiver.id] = map[receiver.id] || 0;
+    });
+  });
+  return matrix;
+}
+
+function printMatrix(matrix, players, label = "Matrix") {
+  const ids = players.map((p) => p.id);
+  const names = players.map((p) => p.get("name") || p.id);
+  const header = ["From→To", ...names];
+  const rows = ids.map((sid, i) => [
+    names[i],
+    ...ids.map((rid) => matrix[sid][rid]),
+  ]);
+  console.log(`\n=== ${label} ===`);
+
+    const colWidths = header.map((_, colIndex) =>
+    Math.max(
+      header[colIndex].length,
+      ...rows.map((r) => String(r[colIndex]).length)
+    )
+  );
+
+  const formatRow = (row) =>
+    row.map((val, i) => String(val).padEnd(colWidths[i] + 2)).join("");
+
+  console.log(formatRow(header));
+  rows.forEach((r) => console.log(formatRow(r)));
+  console.log("======================================\n");
+}
