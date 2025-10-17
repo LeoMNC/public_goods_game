@@ -161,4 +161,3 @@ function TransferList({ player, players, transfers, onChange }) {
     </ul>
     );
   }
-
