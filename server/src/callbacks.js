@@ -157,6 +157,10 @@ Empirica.onStageEnded(({ stage }) => {
     case "punish": {
       console.log("[StageEnd] Processing punishment...");
       console.log("---------- Building punishment matrix...");
+      players.forEach((p) => {
+        console.log(`[Punish Debug] ${p.get("name")} penaltyMap:`, p.get("penaltyMap"));
+      });
+
       const punishMatrix = buildMatrix(players, "penaltyMap");
       round.set("punishMatrix", punishMatrix);
       printMatrix(punishMatrix, players, "Punishment Matrix");
@@ -176,6 +180,10 @@ Empirica.onStageEnded(({ stage }) => {
     case "transfer": {
       console.log("[StageEnd] Processing transfers...");
       console.log("---------- Building transfer matrix...");
+      players.forEach((p) => {
+        console.log(`[Transfer Debug] ${p.get("name")} transferMap:`, p.get("transferMapx"));
+      });
+
       const transferMatrix = buildMatrix(players, "transferMap");
       round.set("transferMatrix", transferMatrix);
       printMatrix(transferMatrix, players, "Transfer Matrix");
@@ -263,7 +271,8 @@ function buildMatrix(players, field) {
     });
   });
   players.forEach((sender) => {
-    const map = sender.get(field) || {};
+    const raw = sender.get(field);
+    const map = (raw && typeof raw === "object") ? raw : {};
     players.forEach((receiver) => {
       matrix[sender.id][receiver.id] = map[receiver.id] || 0;
     });

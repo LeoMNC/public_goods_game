@@ -42,7 +42,7 @@ export function Intermission() {
           After a {contributionMultiplier}x multiplier, the pool became <strong>{totalPool.toFixed(2)} tokens</strong>. This was divided between all {players.length} players.
         </p>
         <p>
-          So, each player (including you) will receive <strong>{share.toFixed(2)} tokens</strong> at the end of the round.
+          So, each player (including you) has received their share of <strong>{share.toFixed(2)} tokens</strong>.
         </p>
         {monitoringCost > 0 ? (
           <p>
