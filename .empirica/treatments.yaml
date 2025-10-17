@@ -28,7 +28,16 @@ factors:
       - value: 60
 
 treatments:
-  - name: _testing
+  - name: 1p_testing
+    desc: 1 player, 3 rounds, no chat
+    factors:
+      playerCount: 1
+      numRounds: 3
+      playDuration: 30000
+      talkDuration: 60000
+      chatEnabled: false
+
+  - name: 2p_testing
     desc: 2 players, 3 rounds, no chat
     factors:
       playerCount: 2

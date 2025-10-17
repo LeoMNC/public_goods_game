@@ -19,6 +19,8 @@ export function Credits() {
     punishmentPenalty: 0,
     share:             0,
     endingTokens:      0,
+    punishedMe:        [],
+    receivedFrom:      [],
   });
 
   const [points, setPoints] = useState(player.get("points") || 0);
@@ -35,6 +37,8 @@ export function Credits() {
     const punishmentPenalty = player.round.get("punishmentPenalty") || 0;
     const transfersReceived = player.round.get("transfersReceived") || 0;
     const endingTokens      = player.get("tokens")                  || 0;
+    const punishedMe        = player.round.get("punishedMe")   || [];
+    const receivedFrom      = player.round.get("receivedFrom") || [];
 
     console.log("ROUND SUMMARY →", {
       startingTokens,
@@ -46,6 +50,8 @@ export function Credits() {
       punishmentPenalty,
       transfersReceived,
       endingTokens,
+      punishedMe,
+      receivedFrom,
     });
 
     setRoundSummary({
@@ -58,6 +64,8 @@ export function Credits() {
       punishmentPenalty,
       transfersReceived,
       endingTokens,
+      punishedMe,
+      receivedFrom,
     });
 
     setPoints(player.get("points") || 0);
@@ -73,6 +81,8 @@ export function Credits() {
     punishmentPenalty,
     transfersReceived,
     endingTokens,
+    punishedMe,
+    receivedFrom,
   } = roundSummary;
 
   const netTransactions = 0
@@ -146,6 +156,34 @@ export function Credits() {
           </p>
         </div>
       </div>
+      {(
+        <>
+          <div className="border-t border-gray-200 my-4" />
+          <div className="bg-gray-100 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold mb-2 text-gray-700">
+              Interaction Details
+            </h3>
+            {punishedMe.length > 0 ? (
+              <p className="text-red-700">
+                You were punished by:{" "}
+                <strong>{punishedMe.map(id => players.find(p => p.id === id)?.get("name") || id).join(", ")}</strong>
+              </p>
+            ) : (
+              <p className="text-gray-500">No one punished you this round.</p>
+            )}
+
+            {receivedFrom.length > 0 ? (
+              <p className="text-green-700 mt-2">
+                You received transfers from:{" "}
+                <strong>{receivedFrom.map(id => players.find(p => p.id === id)?.get("name") || id).join(", ")}</strong>
+              </p>
+            ) : (
+              <p className="text-gray-500 mt-2">No one transferred tokens to you this round.</p>
+            )}
+          </div>
+        </>
+      )}
+
 
       <div className="bg-gradient-to-r from-empirica-50 to-empirica-100 p-6 rounded-lg shadow-sm">
         <h2 className="text-2xl font-semibold text-empirica-700 mb-3">

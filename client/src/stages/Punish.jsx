@@ -6,7 +6,7 @@ import stage4Img from "../stages/Stage4Punishment.png";
 
 
 // Client‐side multiplier must match server
-const PUNISH_MULTIPLIER = 5;
+const punishMultiplier = 5;
 
 export function Punish() {
   const {

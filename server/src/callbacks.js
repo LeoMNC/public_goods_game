@@ -4,9 +4,9 @@ export const Empirica = new ClassicListenersCollector();
 
 import path from "path"; // ensure path is imported for the init handler
 
-const numPracticeRounds = 1;           // Optional practice round
-const PUNISH_MULTIPLIER = 5;
-const CONTRIBUTION_MULTIPLIER = 2;
+const numPracticeRounds = 1;
+const punishMultiplier = 5;
+const contributionMultiplier = 2;
 const initialTokens = 10;               // Initial tokens per player
 // Game Start
 Empirica.onGameStart(({ game }) => {
@@ -98,12 +98,12 @@ Empirica.onStageEnded(({ stage }) => {
       );
       round.set("totalContribution", roundContribution);
 
-      const roundPool = roundContribution * CONTRIBUTION_MULTIPLIER;
+      const roundPool = roundContribution * contributionMultiplier;
       const share = (players.length > 0 ? roundPool / players.length : 0);
       round.set("share", share); // keep numeric; format toFixed() only for display
 
       console.log(`[StageEnd] Total round contribution: ${roundContribution}`);
-      console.log(`[StageEnd] Multiplied pool (x${CONTRIBUTION_MULTIPLIER}): ${roundPool}`);
+      console.log(`[StageEnd] Multiplied pool (x${contributionMultiplier}): ${roundPool}`);
       console.log(`[StageEnd] Each player will receive ${share} from the pool`);
 
       // 3) CREDIT the share immediately (moved from credits stage)
@@ -158,7 +158,7 @@ Empirica.onStageEnded(({ stage }) => {
       console.log("[StageEnd] Processing punishment...");
       console.log("---------- Building punishment matrix...");
       players.forEach((p) => {
-        console.log(`[Punish Debug] ${p.get("name")} penaltyMap:`, p.get("penaltyMap"));
+        console.log(`[Punish Debug] ${p.get("name")} penaltyMap:`, p.round.get("penaltyMap"));
       });
 
       const punishMatrix = buildMatrix(players, "penaltyMap");
@@ -167,7 +167,9 @@ Empirica.onStageEnded(({ stage }) => {
       players.forEach((p) => {
         const punishCost = Number(p.round.get("punishCost") || 0);
         const punishReceived = Object.entries(punishMatrix).reduce((sum, [sid, penalties]) =>
-          sum + PUNISH_MULTIPLIER * (penalties[p.id] || 0), 0);
+          sum + punishMultiplier * (penalties[p.id] || 0), 0);
+        const punishedMe = players.filter((punisher) => punisher.id !== p.id && punishMatrix[punisher.id][p.id] > 0);
+        p.round.set("punishedMe", punishedMe.map((punisher) => punisher.get("name")));
         p.round.set("punishReceived", punishReceived);
         const currentTokens = Number(p.get("tokens") || 0);
         const newTokens = Math.max(0, currentTokens - punishReceived - punishCost);
@@ -181,7 +183,7 @@ Empirica.onStageEnded(({ stage }) => {
       console.log("[StageEnd] Processing transfers...");
       console.log("---------- Building transfer matrix...");
       players.forEach((p) => {
-        console.log(`[Transfer Debug] ${p.get("name")} transferMap:`, p.get("transferMapx"));
+        console.log(`[Transfer Debug] ${p.get("name")} transferMap:`, p.round.get("transferMap"));
       });
 
       const transferMatrix = buildMatrix(players, "transferMap");
@@ -189,7 +191,9 @@ Empirica.onStageEnded(({ stage }) => {
       printMatrix(transferMatrix, players, "Transfer Matrix");
       players.forEach(p => {
         const transferSent = Object.values(transferMatrix[p.id]).reduce((a, b) => a + b, 0);
-        const transferReceived = players.reduce((sum, other) => sum + transferMatrix[other.id][p.id], 0);
+        const transferReceived = players.reduce((sum, sender) => sum + transferMatrix[sender.id]?.[p.id] || 0, 0);
+        const transferredToMe = players.filter((sender) => p.id !== sender.id && transferMatrix[sender.id]?.[p.id] > 0);
+        p.round.set("transferredToMe", transferredToMe.map((sender) => sender.get("name")));
         p.round.set("transfersSent", transferSent);
         p.round.set("transfersReceived", transferReceived);
         p.round.set("netTransfer", transferReceived - transferSent);
@@ -271,7 +275,7 @@ function buildMatrix(players, field) {
     });
   });
   players.forEach((sender) => {
-    const raw = sender.get(field);
+    const raw = sender.round.get(field);
     const map = (raw && typeof raw === "object") ? raw : {};
     players.forEach((receiver) => {
       matrix[sender.id][receiver.id] = map[receiver.id] || 0;
