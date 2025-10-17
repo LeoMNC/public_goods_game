@@ -108,3 +108,48 @@ treatments:
       playDuration: 10
       talkDuration: 30
       chatEnabled: false
+
+  - name: 6_players_nochat
+    desc: 6 players with chat disabled
+    factors:
+      playerCount: 6
+      numRounds: 30
+      playDuration: 10
+      talkDuration: 30
+      chatEnabled: false
+
+  - name: 7_players_nochat
+    desc: 7 players with chat disabled
+    factors:
+      playerCount: 7
+      numRounds: 30
+      playDuration: 10
+      talkDuration: 30
+      chatEnabled: false
+
+  - name: 8_players_nochat
+    desc: 8 players with chat disabled
+    factors:
+      playerCount: 8
+      numRounds: 30
+      playDuration: 10
+      talkDuration: 30
+      chatEnabled: false
+
+  - name: 9_players_nochat
+    desc: 9 players with chat disabled
+    factors:
+      playerCount: 9
+      numRounds: 30
+      playDuration: 10
+      talkDuration: 30
+      chatEnabled: false
+
+  - name: 10_players_nochat
+    desc: 10 players with chat disabled
+    factors:
+      playerCount: 10
+      numRounds: 30
+      playDuration: 10
+      talkDuration: 30
+      chatEnabled: false
